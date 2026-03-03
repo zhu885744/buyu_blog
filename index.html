@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>%VITE_TITLE%</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      #loadingPage {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #f5f5f5;
+        font-size: 12px;
+        z-index: 9999;
+        /* 改为column垂直布局，让立方体和文字上下排列 */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 4em; /* 立方体和文字的间距，适配em单位，随整体缩放 */
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+      }
+      #loadingPage.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      .base {
+        height: 9em;
+        width: 9em;
+        transform: rotateX(45deg) rotateZ(45deg);
+        transform-style: preserve-3d;
+      }
+      .cube,
+      .cube:after,
+      .cube:before {
+        content: '';
+        float: left;
+        height: 3em;
+        width: 3em;
+        position: absolute;
+        border-radius: 0.2em;
+      }
+      .cube {
+        background-color: #07d870;
+        position: relative;
+        transform: translateZ(3em);
+        transform-style: preserve-3d;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 1em rgba(7, 216, 112, 0.2);
+        animation: cubeAnim 1s infinite ease-in-out;
+      }
+      .cube:after {
+        background-color: #06c465;
+        transform: rotateX(-90deg) translateY(3em);
+        transform-origin: 100% 100%;
+      }
+      .cube:before {
+        background-color: #049e4f;
+        transform: rotateY(90deg) translateX(3em);
+        transform-origin: 100% 0;
+      }
+      .cube:nth-child(1) { animation-delay: 0.05s; }
+      .cube:nth-child(2) { animation-delay: 0.1s; }
+      .cube:nth-child(3) { animation-delay: 0.15s; }
+      .cube:nth-child(4) { animation-delay: 0.2s; }
+      .cube:nth-child(5) { animation-delay: 0.25s; }
+      .cube:nth-child(6) { animation-delay: 0.3s; }
+      .cube:nth-child(7) { animation-delay: 0.35s; }
+      .cube:nth-child(8) { animation-delay: 0.4s; }
+      .cube:nth-child(9) { animation-delay: 0.45s; }
+      @keyframes cubeAnim {
+        50% {
+          transform: translateZ(0.8em);
+        }
+      }
+      /* 新增：加载提示文字样式 + 闪烁动画 */
+      .loading-tip {
+        font-size: 1.4em;
+        color: #049e4f; /* 和立方体侧面同色，视觉统一 */
+        font-family: "Microsoft Yahei", sans-serif;
+        letter-spacing: 0.2em; /* 文字间距，更舒展 */
+        font-weight: 500;
+        /* 文字闪烁动画，和立方体动画节奏呼应 */
+        animation: tipBlink 1.5s infinite ease-in-out;
+      }
+      /* 文字闪烁关键帧：淡入淡出，不突兀 */
+      @keyframes tipBlink {
+        50% {
+          opacity: 0.6;
+        }
+      }
+      @media (max-width: 375px) {
+        #loadingPage { font-size: 10px; }
+      }
+      @media (min-width: 768px) {
+        #loadingPage { font-size: 14px; }
+      }
+      .base, .cube {
+        will-change: transform;
+        backface-visibility: hidden;
+      }
+    </style>
+</head>
+<body>
+    <div id="loadingPage">
+      <div class='base'>
+        <div class='cube'></div><div class='cube'></div><div class='cube'></div>
+        <div class='cube'></div><div class='cube'></div><div class='cube'></div>
+        <div class='cube'></div><div class='cube'></div><div class='cube'></div>
+      </div>
+      <!-- 加载提示文字 -->
+      <div class="loading-tip">页面加载中...</div>
+    </div>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+
+    <script>
+      // 加载页面处理
+      const loadingPage = document.getElementById('loadingPage')
+      const hideLoading = () => {
+        if (loadingPage.classList.contains('hidden')) return
+        loadingPage.classList.add('hidden')
+        setTimeout(() => {
+          loadingPage.remove()
+        }, 500)
+      }
+      window.onload = hideLoading
+      setTimeout(hideLoading, 3000)
+    </script>
+</body>
+</html>
