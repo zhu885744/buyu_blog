@@ -2,7 +2,6 @@
   <!-- 顶部导航栏 -->
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container d-flex align-items-center">
-      <!-- 移动端侧边栏触发按钮 -->
       <button 
         class="navbar-toggler d-lg-none me-3 border-0" 
         type="button" 
@@ -12,7 +11,6 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- 网站标题：跳首页 -->
       <router-link class="navbar-brand flex-grow-1 text-center d-lg-block d-flex justify-content-start align-items-center" to="/">
         <img 
           v-if="store.comm.siteInfo?.avatar" 
@@ -23,24 +21,20 @@
         <span v-else class="fw-bold">{{ store.comm.siteInfo?.title || '未设置网站名' }}</span>
       </router-link>
 
-      <!-- 移动端右侧搜索按钮 -->
       <div class="d-flex align-items-center ms-3">
         <button class="btn d-lg-none border-0 bg-transparent" type="button" @click="method.showSearch()">
           <i class="bi bi-search"></i>
         </button>
       </div>
 
-      <!-- PC端导航内容 -->
       <div class="collapse navbar-collapse d-none d-lg-flex" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <!-- 首页 -->
           <li class="nav-item">
             <router-link class="nav-link" aria-current="page" to="/" active-class="active" exact-active-class="active">
               首页
             </router-link>
           </li>
 
-          <!-- 分类下拉列表 -->
           <li class="nav-item dropdown" ref="pcDropdownRef">
             <a class="nav-link dropdown-toggle" role="button" aria-expanded="false" data-bs-toggle="dropdown">
               分类
@@ -57,22 +51,18 @@
             </ul>
           </li>
 
-          <!-- 动态渲染的导航项 -->
           <li v-for="item in navItems" :key="item.key" class="nav-item">
             <router-link class="nav-link" :to="`/${item.key}`" active-class="active" exact-active-class="active">
               {{ item.title }}
             </router-link>
           </li>
         </ul>
-        
-        <!-- 右侧功能区域 -->
+
         <div class="d-flex align-items-center">
-          <!-- 搜索按钮 -->
           <button class="btn btn-outline-secondary me-2" type="button" @click="method.showSearch()">
             <i class="bi bi-search"></i>
           </button>
           
-          <!-- 深色/浅色模式切换按钮 -->
           <button 
             class="btn btn-outline-secondary me-2" 
             type="button" 
@@ -82,9 +72,7 @@
             <i :class="darkModeIcon"></i>
           </button>
           
-          <!-- 用户相关功能 -->
           <div class="d-flex align-items-center" v-if="store.comm.login.finish && store.comm.login.user">
-            <!-- 已登录用户信息 -->
             <div class="dropdown" ref="userDropdownRef">
               <button 
                 class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" 
@@ -115,11 +103,6 @@
                     <i class="bi bi-gear me-1"></i>用户设置
                   </router-link>
                 </li>
-                <li>
-                  <router-link class="dropdown-item" to="/upgrade/theme">
-                    <i class="bi bi-arrow-down-circle me-1"></i>版本更新
-                  </router-link>
-                </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   <button class="dropdown-item text-danger" @click="method.logout()">
@@ -130,7 +113,6 @@
             </div>
           </div>
           <div class="d-flex" v-else>
-            <!-- 未登录状态 -->
             <button class="btn btn-outline-primary me-2" @click="method.showLogin()">
               登录
             </button>

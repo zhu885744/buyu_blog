@@ -625,7 +625,7 @@ async function getCommentConfig() {
 async function getGlobalConfig() {
   try {
     const response = await request.get('/api/config/one', {
-      key: 'xiao_functions'
+      key: 'buyu_functions'
     })
     if (response.code === 200 && response.data) {
       const config = response.data.json || {}
@@ -716,7 +716,7 @@ async function saveGlobalConfig() {
   
   try {
     const response = await request.post('/api/config/save', {
-      key: 'xiao_functions',
+      key: 'buyu_functions',
       json: globalConfig.value
     })
 
@@ -762,7 +762,7 @@ function handleDateChange(event) {
 async function getHomepageConfig() {
   try {
     // 从后端API获取配置
-    const response = await request.get('/api/config/one', { key: 'xiao_functions' })
+    const response = await request.get('/api/config/one', { key: 'buyu_functions' })
     if (response.code === 200 && response.data) {
       const config = response.data.json || {}
       homepageConfig.value.display_mode = config.display_mode !== false // 默认值为true
@@ -781,7 +781,7 @@ async function saveHomepageConfig() {
   
   try {
     // 先获取当前全局配置，避免覆盖其他配置项
-    const configResponse = await request.get('/api/config/one', { key: 'xiao_functions' })
+    const configResponse = await request.get('/api/config/one', { key: 'buyu_functions' })
     let currentConfig = {}
     if (configResponse.code === 200 && configResponse.data) {
       currentConfig = configResponse.data.json || {}
@@ -795,7 +795,7 @@ async function saveHomepageConfig() {
     
     // 保存到后端API
     const response = await request.post('/api/config/save', {
-      key: 'xiao_functions',
+      key: 'buyu_functions',
       json: updatedConfig
     })
     

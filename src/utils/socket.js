@@ -8,7 +8,7 @@ const config = {
   uri: socketUri || 'ws://cs.zhuxu.asia/socket', // Socket基础地址（.ws/.wss）
   reconnectInterval: 3000, // 重连间隔（毫秒）
   maxReconnectAttempts: 10, // 最大重连次数，0为无限重连
-  debug: import.meta.env.VITE_SOCKET_DEBUG === 'true', // 调试模式（生产建议false）
+  debug: import.meta.env.VITE_SOCKET_DEBUG === 'false', // 调试模式（生产建议false）
   routerMode: import.meta.env.VITE_ROUTER_MODE || 'hash', // 路由模式（兼容地址拼接）
   baseUrl: (import.meta.env.VITE_BASE_URL || '/').replace(/\/$/, '') // 基础路径（统一去除末尾斜杠，避免拼接重复）
 }

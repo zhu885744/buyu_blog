@@ -104,7 +104,7 @@ const logout = async (state = {}, path = null) => {
  * @returns {Promise<Object|null>}
  */
 const fetchSiteInfo = async (state = {}, force = false) => {
-    const cacheName = 'xiao_functions'
+    const cacheName = 'buyu_functions'
     
     // 防止并发调用
     if (fetchingSiteInfo) return state.siteInfo
@@ -113,7 +113,7 @@ const fetchSiteInfo = async (state = {}, force = false) => {
     try {
         // 直接从API获取站点信息，不使用缓存
         // 这样可以确保每次都获取最新的配置，包括enable_custom_style设置
-        const response = await axios.get(`/api/config/one?key=xiao_functions`)
+        const response = await axios.get(`/api/config/one?key=buyu_functions`)
 
         // 检查响应结构
         if (response.code === 200 && response.data) {
@@ -180,7 +180,7 @@ export const useCommStore = defineStore('comm', {
     state: () => {
         const cachedUser = cache.get('user-info') || {}
         const hasUser = !utils.is.empty(cachedUser)
-        const cachedSiteInfo = cache.get('xiao_functions') || {}
+        const cachedSiteInfo = cache.get('buyu_functions') || {}
         const cachedDarkMode = localStorage.getItem('dark-mode') === 'true'
         
         return {
@@ -243,7 +243,7 @@ export const useCommStore = defineStore('comm', {
          * 清除站点信息缓存
          */
         clearSiteInfoCache() {
-            const cacheName = 'xiao_functions'
+            const cacheName = 'buyu_functions'
             cache.del(cacheName)
             this.siteInfo = {}
         },

@@ -2,7 +2,6 @@ import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router
 import cache from '@/utils/cache'
 import utils from '@/utils/utils'
 import { useCommStore } from '@/store/comm'
-import config from '@/utils/config'
 import { setupRouteTitle } from '@/utils/usePageTitle'
 
 /**
@@ -15,10 +14,10 @@ import { setupRouteTitle } from '@/utils/usePageTitle'
  * 5. 优化路由配置的可维护性
  */
 
-// 读取配置
-const ROUTER_BASE = config.getSync('base_url') || '/'
-// 从配置文件同步获取路由模式
-const ROUTER_MODE = config.getSync('router_mode') || 'hash'
+// 从环境变量读取配置
+const ROUTER_BASE = import.meta.env.VITE_BASE_URL || '/'
+// 从环境变量读取路由模式
+const ROUTER_MODE = import.meta.env.VITE_ROUTER_MODE || 'hash'
 
 console.log('路由模式:', ROUTER_MODE)
 
@@ -112,8 +111,8 @@ const routes = [
     path: '/archive',
     name: '归档页面',
     component: () => import('@/views/index/pages/page.vue'),
-    meta: { 
-      title: '网站统计', 
+    meta: {
+      title: '网站统计',
       requiresAuth: false
     },
     props: { pageKey: 'archive' }
@@ -122,11 +121,22 @@ const routes = [
     path: '/links',
     name: '友链页面',
     component: () => import('@/views/index/pages/page.vue'),
-    meta: { 
-      title: '友链', 
+    meta: {
+      title: '友链',
       requiresAuth: false
     },
     props: { pageKey: 'links' }
+  },
+  // 功能页面路由
+  {
+    path: '/functions',
+    name: '功能页面',
+    component: () => import('@/views/index/pages/functions.vue'),
+    meta: {
+      title: '功能设置',
+      requiresAuth: true,
+      requireAdmin: true
+    }
   },
   {
     path: '/:key',
@@ -147,17 +157,6 @@ const routes = [
     }
   },
 
-  // 版本更新路由
-  {
-    path: '/upgrade/theme',
-    name: '版本更新',
-    component: () => import('@/views/index/pages/theme-upgrade.vue'),
-    meta: { 
-      title: '版本更新', 
-      requiresAuth: true
-    }
-  },
-
   // 404 兜底路由（必须放在最后！）
   {
     path: '/:pathMatch(.*)*',
@@ -172,8 +171,8 @@ const routes = [
 
 // 2. 动态创建路由历史对象（适配两种模式）
 const createRouterHistory = () => {
-  // 再次检查路由模式，确保使用最新的配置值
-  const currentMode = config.getSync('router_mode') || 'hash'
+  // 再次检查路由模式，确保使用最新的环境变量值
+  const currentMode = import.meta.env.VITE_ROUTER_MODE || 'hash'
   console.log('路由模式:', currentMode)
   return currentMode === 'history'
     ? createWebHistory(ROUTER_BASE)
@@ -210,6 +209,15 @@ router.beforeEach((to, from, next) => {
     if (!isLogin) {
       next('/')
       return
+    }
+
+    // 管理员权限校验
+    if (to.meta.requireAdmin) {
+      const userKey = userInfo.key || ''
+      if (userKey !== 'admin') {
+        next('/')
+        return
+      }
     }
   }
 
