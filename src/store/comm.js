@@ -135,6 +135,11 @@ const fetchSiteInfo = async (state = {}, force = false) => {
                     if (!obj || typeof obj !== 'object') return obj
                     
                     Object.keys(obj).forEach(key => {
+                        // 不对 custom_code 字段进行转义处理
+                        if (key === 'custom_code') {
+                            return
+                        }
+                        
                         if (typeof obj[key] === 'string') {
                             // 移除反引号并进行基本的XSS防护
                             obj[key] = obj[key].replace(/`/g, '').replace(/</g, '&lt;').replace(/>/g, '&gt;')

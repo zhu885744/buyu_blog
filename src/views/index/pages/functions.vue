@@ -84,6 +84,21 @@
                 首页配置
               </button>
             </li>
+            <li class="nav-item" role="presentation">
+              <button 
+                class="nav-link" 
+                id="custom-code-tab" 
+                data-bs-toggle="tab" 
+                data-bs-target="#custom-code" 
+                type="button" 
+                role="tab" 
+                aria-controls="custom-code" 
+                aria-selected="false"
+              >
+                <i class="bi bi-code me-2"></i>
+                自定义代码
+              </button>
+            </li>
           </ul>
         </div>
       </div>
@@ -516,6 +531,125 @@
             </div>
           </div>
         </div>
+
+        <!-- 自定义代码 -->
+        <div 
+          class="tab-pane fade" 
+          id="custom-code" 
+          role="tabpanel" 
+          aria-labelledby="custom-code-tab"
+        >
+          <div class="config-section">
+            <!-- 自定义代码表单 -->
+            <div class="card shadow-sm">
+              <div class="card-body p-3">
+              <form class="custom-code-form">
+                <!-- 自定义CSS样式 -->
+                <div class="form-section mb-6">
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">自定义CSS样式</h3>
+                  <div class="mb-3">
+                    <label for="custom-css" class="form-label">CSS代码</label>
+                    <textarea 
+                      class="form-control rounded-1 border-gray-300 shadow-sm"
+                      id="custom-css"
+                      v-model="customCodeConfig.css"
+                      rows="6"
+                      placeholder="直接写样式代码，不用添加<style>标签"
+                    ></textarea>
+                    <div class="form-text text-muted mt-1">位于&lt;/head&gt;之前，直接写样式代码，不用添加&lt;style&gt;标签</div>
+                  </div>
+                </div>
+
+                <!-- 自定义JavaScript代码 -->
+                <div class="form-section mb-6">
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">自定义JavaScript代码</h3>
+                  <div class="mb-3">
+                    <label for="custom-js" class="form-label">JavaScript代码</label>
+                    <textarea 
+                      class="form-control rounded-1 border-gray-300 shadow-sm"
+                      id="custom-js"
+                      v-model="customCodeConfig.js"
+                      rows="6"
+                      placeholder="直接填写JS代码，不需要添加<script>标签"
+                    ></textarea>
+                    <div class="form-text text-muted mt-1">位于底部，直接填写JS代码，不需要添加&lt;script&gt;标签</div>
+                  </div>
+                </div>
+
+                <!-- 自定义头部HTML代码 -->
+                <div class="form-section mb-6">
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">自定义头部HTML代码</h3>
+                  <div class="mb-3">
+                    <label for="custom-header" class="form-label">HTML代码</label>
+                    <textarea 
+                      class="form-control rounded-1 border-gray-300 shadow-sm"
+                      id="custom-header"
+                      v-model="customCodeConfig.header"
+                      rows="6"
+                      placeholder="需填HTML标签"
+                    ></textarea>
+                    <div class="form-text text-muted mt-1">位于&lt;/head&gt;之前，这部分代码是在主要内容显示之前加载，通常是CSS样式、自定义的<meta>标签、全站头部JS等需要提前加载的代码，需填HTML标签</div>
+                  </div>
+                </div>
+
+                <!-- 自定义底部HTML代码 -->
+                <div class="form-section mb-6">
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">自定义底部HTML代码</h3>
+                  <div class="mb-3">
+                    <label for="custom-footer" class="form-label">HTML代码</label>
+                    <textarea 
+                      class="form-control rounded-1 border-gray-300 shadow-sm"
+                      id="custom-footer"
+                      v-model="customCodeConfig.footer"
+                      rows="6"
+                      placeholder="需填HTML标签"
+                    ></textarea>
+                    <div class="form-text text-muted mt-1">位于&lt;/body&gt;之前，这部分代码是在主要内容加载完毕加载，通常是JS代码，需填HTML标签</div>
+                  </div>
+                </div>
+
+                <!-- 网站统计HTML代码 -->
+                <div class="form-section mb-6">
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">网站统计HTML代码</h3>
+                  <div class="mb-3">
+                    <label for="custom-analytics" class="form-label">HTML代码</label>
+                    <textarea 
+                      class="form-control rounded-1 border-gray-300 shadow-sm"
+                      id="custom-analytics"
+                      v-model="customCodeConfig.analytics"
+                      rows="6"
+                      placeholder="需填HTML标签"
+                    ></textarea>
+                    <div class="form-text text-muted mt-1">位于底部，用于添加第三方流量数据统计代码，如：Google analytics、百度统计、CNZZ、51la，国内站点推荐使用百度统计，国外站点推荐使用Google analytics。需填HTML标签，如果是javascript代码，请保存在自定义javascript代码</div>
+                  </div>
+                </div>
+
+                <!-- 保存按钮 -->
+                <div class="form-actions mt-8">
+                  <button 
+                    type="button" 
+                    class="btn btn-primary rounded-full px-6 py-2.5 shadow-sm"
+                    @click="saveCustomCodeConfig"
+                    :disabled="saving"
+                  >
+                    <i class="bi" :class="saving ? 'bi-arrow-clockwise spin' : 'bi-save'"></i>
+                    {{ saving ? ' 保存中...' : ' 保存自定义代码' }}
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-secondary rounded-full px-6 py-2.5 shadow-sm ms-3"
+                    @click="resetCustomCodeConfig"
+                    :disabled="saving"
+                  >
+                    <i class="bi bi-arrow-counterclockwise me-2"></i>
+                    重置
+                  </button>
+                </div>
+              </form>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -572,6 +706,14 @@ const globalConfig = ref({
 
 const homepageConfig = ref({
   display_mode: true // true为有图模式，false为无图模式
+})
+
+const customCodeConfig = ref({
+  css: '',
+  js: '',
+  header: '',
+  footer: '',
+  analytics: ''
 })
 
 const saving = ref(false)
@@ -649,6 +791,14 @@ async function getGlobalConfig() {
       }
       // 同时更新首页配置
       homepageConfig.value.display_mode = globalConfig.value.display_mode
+      // 同时更新自定义代码配置
+      customCodeConfig.value = {
+        css: config.custom_code?.css || '',
+        js: config.custom_code?.js || '',
+        header: config.custom_code?.header || '',
+        footer: config.custom_code?.footer || '',
+        analytics: config.custom_code?.analytics || ''
+      }
     }
   } catch (error) {
     console.error('获取全局配置失败:', error)
@@ -717,7 +867,10 @@ async function saveGlobalConfig() {
   try {
     const response = await request.post('/api/config/save', {
       key: 'buyu_functions',
-      json: globalConfig.value
+      json: {
+        ...globalConfig.value,
+        custom_code: customCodeConfig.value
+      }
     })
 
     if (response.code === 200) {
@@ -862,6 +1015,64 @@ function resetGlobalConfig() {
 function resetHomepageConfig() {
   homepageConfig.value = {
     display_mode: true // 默认为有图模式
+  }
+}
+
+// 保存自定义代码配置
+async function saveCustomCodeConfig() {
+  saving.value = true
+  message.value = ''
+  messageType.value = ''
+  
+  try {
+    // 先获取当前全局配置，避免覆盖其他配置项
+    const configResponse = await request.get('/api/config/one', { key: 'buyu_functions' })
+    let currentConfig = {}
+    if (configResponse.code === 200 && configResponse.data) {
+      currentConfig = configResponse.data.json || {}
+    }
+    
+    // 更新自定义代码配置
+    const updatedConfig = {
+      ...currentConfig,
+      ...globalConfig.value,
+      custom_code: customCodeConfig.value
+    }
+    
+    const response = await request.post('/api/config/save', {
+      key: 'buyu_functions',
+      json: updatedConfig
+    })
+
+    if (response.code === 200) {
+      message.value = '自定义代码保存成功！'
+      messageType.value = 'success'
+      toast.success('自定义代码保存成功')
+      // 保存成功后强制刷新站点信息，更新缓存
+      await store.fetchSiteInfo(true)
+    } else {
+      message.value = '自定义代码保存失败：' + (response.msg || '未知错误')
+      messageType.value = 'error'
+      toast.error('自定义代码保存失败')
+    }
+  } catch (error) {
+    console.error('保存自定义代码失败:', error)
+    message.value = '保存失败：网络错误'
+    messageType.value = 'error'
+    toast.error('保存失败：网络错误')
+  } finally {
+    saving.value = false
+  }
+}
+
+// 重置自定义代码配置
+function resetCustomCodeConfig() {
+  customCodeConfig.value = {
+    css: '',
+    js: '',
+    header: '',
+    footer: '',
+    analytics: ''
   }
 }
 

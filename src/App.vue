@@ -1,10 +1,6 @@
 <template>
-  <!-- 配置初始化组件 -->
-  <ConfigInit />
-  
-  <!-- 主布局 -->
   <!-- 全局导航栏 -->
-  <i-nav ref="navRef"></i-nav>
+  <i-nav></i-nav>
   <!-- 主内容区 -->
   <div class="container">
     <router-view></router-view>
@@ -29,26 +25,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import upgradePage from '@/comps/upgrade/page.vue'
 import iNav from '@/views/index/layout/nav.vue'
 import iFooter from '@/views/index/layout/footer.vue'
 import socket from '@/utils/socket'
+import { useCommStore } from '@/store/comm'
 
-const navRef = ref(null)
 const showBackToTop = ref(false)
-
-const handleShowLogin = () => {
-  if (navRef.value && navRef.value.method && navRef.value.method.showLogin) {
-    navRef.value.method.showLogin()
-  }
-}
-
-const handleShowRegister = () => {
-  if (navRef.value && navRef.value.method && navRef.value.method.showRegister) {
-    navRef.value.method.showRegister()
-  }
-}
+const store = useCommStore()
 
 // 滚动到顶部
 const scrollToTop = () => {
@@ -76,7 +61,7 @@ const handleSocketError = (error) => {
   console.error('WebSocket错误:', error);
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('scroll', handleScroll)
   
   // 连接WebSocket
@@ -84,6 +69,59 @@ onMounted(() => {
   socket.on('close', handleSocketClose)
   socket.on('error', handleSocketError)
   socket.connect()
+  
+  // 确保siteInfo加载完成
+  await store.fetchSiteInfo()
+  
+  // 直接使用store.siteInfo获取自定义代码
+  const customCodeData = store.siteInfo?.custom_code || {}
+  
+  // 注入自定义CSS
+  if (customCodeData.css) {
+    const style = document.createElement('style')
+    style.textContent = customCodeData.css
+    document.head.appendChild(style)
+  }
+  
+  // 注入自定义头部HTML代码
+  if (customCodeData.header) {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = customCodeData.header
+    
+    // 直接将所有子节点添加到head中，而不是添加整个div
+    while (tempDiv.firstChild) {
+      document.head.appendChild(tempDiv.firstChild)
+    }
+  }
+  
+  // 注入自定义JavaScript
+  if (customCodeData.js) {
+    const script = document.createElement('script')
+    script.textContent = customCodeData.js
+    document.body.appendChild(script)
+  }
+  
+  // 注入自定义底部HTML代码
+  if (customCodeData.footer) {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = customCodeData.footer
+    
+    // 直接将所有子节点添加到body中，而不是添加整个div
+    while (tempDiv.firstChild) {
+      document.body.appendChild(tempDiv.firstChild)
+    }
+  }
+  
+  // 注入网站统计HTML代码
+  if (customCodeData.analytics) {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = customCodeData.analytics
+    
+    // 直接将所有子节点添加到body中，而不是添加整个div
+    while (tempDiv.firstChild) {
+      document.body.appendChild(tempDiv.firstChild)
+    }
+  }
 })
 
 onUnmounted(() => {
