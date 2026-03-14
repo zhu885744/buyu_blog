@@ -16,10 +16,24 @@
     <!-- 文章主体 -->
     <div v-else class="article-main">
       <!-- 文章内容区：核心阅读区，重写样式 -->
+      <!-- 面包屑导航 -->
+      <nav class="mt-2" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><router-link to="/" class="text-decoration-none text-black"><i class="bi bi-geo-alt"></i>首页</router-link></li>
+          <li class="breadcrumb-item active" aria-current="page">
+            <router-link :to="`/category/${articleInfo.result?.group[0]?.id || ''}`" class="text-decoration-none text-black">
+              {{ articleInfo.result?.group[0]?.name || '未分类' }}
+            </router-link>
+          </li>
+          <li class="breadcrumb-item active text-black" aria-current="page">
+            正文
+          </li>
+        </ol>
+      </nav>
       <main class="card shadow-sm mt-2">
         <div class="p-3">
         <!-- 文章头部：标题+元信息 -->
-        <header class="article-header mt-2">
+        <header class="article-header">
           <h1 class="article-title text-center fw-bold mb-3">{{ articleInfo.title }}</h1>
           <!-- 文章元信息：居中布局、弱化样式 -->
           <div class="article-meta d-flex flex-wrap justify-content-center align-items-center text-muted gap-4 fs-6">
@@ -803,6 +817,20 @@ watch(
 
 /* 暗黑模式样式 */
 [data-bs-theme=dark] {
+  /* 面包屑导航 */
+  .breadcrumb {
+    --bs-breadcrumb-divider-color: var(--bs-secondary-color);
+  }
+  .breadcrumb-item a {
+    color: var(--bs-link-color);
+  }
+  .breadcrumb-item a:hover {
+    color: var(--bs-link-hover-color);
+  }
+  .breadcrumb-item.active {
+    color: var(--bs-secondary-color);
+  }
+  
   /* 文章元信息 */
   .article-meta {
     color: var(--bs-secondary-color);

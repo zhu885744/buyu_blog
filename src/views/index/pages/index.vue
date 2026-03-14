@@ -593,8 +593,14 @@ img {
   transition: color 0.3s ease;
   margin: 0 0 1rem 0;
   display: -webkit-box;
+  display: -moz-box;
+  display: box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
+  -moz-line-clamp: 2;
   -webkit-box-orient: vertical;
+  -moz-box-orient: vertical;
+  box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -610,8 +616,14 @@ img {
   line-height: 1.6;
   margin: 0 0 1.25rem 0;
   display: -webkit-box;
+  display: -moz-box;
+  display: box;
+  line-clamp: 3;
   -webkit-line-clamp: 3;
+  -moz-line-clamp: 3;
   -webkit-box-orient: vertical;
+  -moz-box-orient: vertical;
+  box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   flex-grow: 1;
@@ -637,8 +649,14 @@ img {
   line-height: 1.6;
   margin: 0.75rem 0 1.25rem 0;
   display: -webkit-box;
+  display: -moz-box;
+  display: box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
+  -moz-line-clamp: 2;
   -webkit-box-orient: vertical;
+  -moz-box-orient: vertical;
+  box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -799,6 +817,7 @@ img {
 }
 
 .page-input[type=number] {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 

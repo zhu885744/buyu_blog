@@ -1464,7 +1464,7 @@ watch(
   
   .emoji-button {
     bottom: 1rem !important;
-    end: 1rem !important;
+    right: 1rem !important;
   }
   
   /* 评论容器响应式调整 */
