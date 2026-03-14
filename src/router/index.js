@@ -127,15 +127,15 @@ const routes = [
     },
     props: { pageKey: 'links' }
   },
-  // 功能页面路由
+  // 管理相关路由
   {
     path: '/functions',
-    name: '功能页面',
+    name: '主题设置',
     component: () => import('@/views/index/pages/functions.vue'),
-    meta: {
-      title: '功能设置',
-      requiresAuth: true,
-      requireAdmin: true
+    meta: { 
+      title: '主题设置', 
+      requiresAuth: true, 
+      isAdmin: true
     }
   },
   {

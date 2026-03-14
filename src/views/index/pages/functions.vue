@@ -911,12 +911,6 @@ onMounted(async () => {
   line-height: 1.6;
 }
 
-/* 配置内容 */
-.config-content {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
 /* 导航标签容器 */
 .config-tabs-container {
   overflow: hidden;

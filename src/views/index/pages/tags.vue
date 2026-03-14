@@ -64,7 +64,19 @@
                 </button>
               </li>
               <li class="page-item active">
-                <span class="page-link">{{ tagCurrentPage }} / {{ tagPageCount }}</span>
+                <div class="page-input-container">
+                  <input 
+                    type="number" 
+                    class="page-input" 
+                    v-model.number="tagPageInput" 
+                    @keyup.enter="goToTagPage"
+                    @blur="goToTagPage"
+                    min="1"
+                    :max="tagPageCount"
+                  >
+                  <span class="page-separator">/</span>
+                  <span class="page-total">{{ tagPageCount }}</span>
+                </div>
               </li>
               <li class="page-item" :class="{ disabled: tagCurrentPage === tagPageCount }">
                 <button class="page-link" @click="changeTagPage(tagCurrentPage + 1)">
@@ -122,30 +134,31 @@
             <!-- 文章封面 -->
             <div class="article-cover flex-shrink-0">
               <img 
-                :src="getCoverImg(article)" 
+                :src="loadingGif" 
+                :data-src="getCoverImg(article)" 
                 :alt="article.title" 
-                class="article-cover-img w-100 h-100 object-cover"
-                loading="lazy"
+                class="article-cover-img w-100 h-100 object-cover lazy-img"
+                @load="onImageLoad"
                 @error="handleImageError"
               >
             </div>
             <!-- 内容区 -->
-            <div class="article-content p-2 flex-grow-1 d-flex flex-column">
+            <div class="article-content p-4 flex-grow-1 d-flex flex-column">
               <!-- 文章标题 -->
-              <h3 class="article-title fw-bold mb-1 m-0">{{ article.title }}</h3>
+              <h3 class="article-title fw-bold mb-3">{{ article.title }}</h3>
 
               <!-- 文章摘要 -->
-              <p class="article-desc text-truncate-1 mt-auto mb-1">
+              <p class="article-desc text-muted mb-4 flex-grow-1">
                 {{ article.abstract || '暂无摘要' }}
               </p>
 
               <!-- 元信息 -->
-              <div class="article-meta d-flex align-items-center w-100 m-0">
-                <div class="meta-left d-flex align-items-center gap-0.5">
-                  <span class="meta-item"><i class="bi bi-folder-fill"></i>{{ article?.result?.group?.[0]?.name || '未分类' }}</span>
+              <div class="article-meta d-flex align-items-center justify-content-between w-100">
+                <div class="meta-left">
+                  <span class="meta-item"><i class="bi bi-folder-fill me-1"></i>{{ article?.result?.group?.[0]?.name || '未分类' }}</span>
                 </div>
-                <div class="meta-right d-flex align-items-center gap-0.5 ms-auto">
-                  <span class="meta-item"><i class="bi bi-calendar-fill"></i>{{ formatTime(article.create_time) }}</span>
+                <div class="meta-right">
+                  <span class="meta-item"><i class="bi bi-calendar-fill me-1"></i>{{ formatTime(article.create_time) }}</span>
                 </div>
               </div>
             </div>
@@ -184,7 +197,19 @@
               </button>
             </li>
             <li class="page-item active">
-              <span class="page-link">{{ currentPage }} / {{ pageCount }}</span>
+              <div class="page-input-container">
+                <input 
+                  type="number" 
+                  class="page-input" 
+                  v-model.number="pageInput" 
+                  @keyup.enter="goToPage"
+                  @blur="goToPage"
+                  min="1"
+                  :max="pageCount"
+                >
+                <span class="page-separator">/</span>
+                <span class="page-total">{{ pageCount }}</span>
+              </div>
             </li>
             <li class="page-item" :class="{ disabled: currentPage === pageCount }">
               <button class="page-link" @click="changePage(currentPage + 1)">
@@ -215,6 +240,7 @@ const props = defineProps({
 
 // 导入本地图片
 import defaultCover from '@/assets/img/fm.avif'
+import loadingGif from '@/assets/img/ljz.gif'
 import { useCommStore } from '@/store/comm'
 
 // 存储
@@ -239,10 +265,12 @@ const currentTag = ref(null)
 const currentTagId = ref(null)
 const articles = ref([])
 const currentPage = ref(1)
+const pageInput = ref(1)
 const total = ref(0)
 const limit = ref(10)
 // 标签分页相关
 const tagCurrentPage = ref(1)
+const tagPageInput = ref(1)
 const tagPageSize = ref(10)
 const totalTags = ref(0)
 const tagPageCount = computed(() => {
@@ -254,7 +282,7 @@ const hasImageMode = ref(true)
 // 从后端API获取显示模式设置
 const loadDisplayMode = async () => {
   try {
-    const response = await request.get('/api/config/one', { key: 'xiao_functions' })
+    const response = await request.get('/api/config/one', { key: 'buyu_functions' })
     if (response.code === 200 && response.data) {
       const config = response.data.json || {}
       hasImageMode.value = config.display_mode !== false // 默认值为true
@@ -270,7 +298,7 @@ const loadDisplayMode = async () => {
 const saveDisplayMode = async (mode) => {
   try {
     await request.post('/api/config/save', {
-      key: 'xiao_functions',
+      key: 'buyu_functions',
       json: { display_mode: mode }
     })
   } catch (error) {
@@ -419,6 +447,9 @@ const loadAllImages = () => {
 // 获取标签列表
 const getTagsList = async () => {
   try {
+    // 确保tagPageInput与tagCurrentPage同步
+    tagPageInput.value = tagCurrentPage.value
+    
     // 缓存键包含页码信息，确保不同页码的标签列表有不同的缓存
     const cacheKey = `tags_list_page_${tagCurrentPage.value}_${tagPageSize.value}`
     const cacheExpire = 60 // 缓存60分钟
@@ -582,6 +613,22 @@ const selectTag = (tagId) => {
 const changePage = (page) => {
   if (page < 1 || page > pageCount.value) return
   currentPage.value = page
+  pageInput.value = page
+  if (currentTagId.value) {
+    getTagArticles(currentTagId.value, page)
+  }
+}
+
+// 跳转到指定页数
+const goToPage = () => {
+  let page = parseInt(pageInput.value)
+  if (isNaN(page) || page < 1) {
+    page = 1
+  } else if (page > pageCount.value) {
+    page = pageCount.value
+  }
+  pageInput.value = page
+  currentPage.value = page
   if (currentTagId.value) {
     getTagArticles(currentTagId.value, page)
   }
@@ -591,7 +638,21 @@ const changePage = (page) => {
 const changeTagPage = (page) => {
   if (page < 1 || page > tagPageCount.value) return
   tagCurrentPage.value = page
+  tagPageInput.value = page
   // 重新获取标签列表
+  getTagsList()
+}
+
+// 跳转到指定标签页数
+const goToTagPage = () => {
+  let page = parseInt(tagPageInput.value)
+  if (isNaN(page) || page < 1) {
+    page = 1
+  } else if (page > tagPageCount.value) {
+    page = tagPageCount.value
+  }
+  tagPageInput.value = page
+  tagCurrentPage.value = page
   getTagsList()
 }
 
@@ -881,15 +942,25 @@ onMounted(async () => {
 .grid-article-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  max-width: 1200px;
+  gap: 4px;
   margin: 0 auto;
 }
 
-/* 文章列表List布局 - 无图模式 */
-.list-article-list {
-  max-width: 1200px;
-  margin: 0 auto;
+/* 文章卡片基础样式 */
+.article-item-card {
+  border-radius: 16px;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--bs-border-color);
+  background-color: var(--bs-card-bg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.article-item-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 123, 255, 0.3);
 }
 
 /* 封面容器 */
@@ -898,7 +969,7 @@ onMounted(async () => {
   padding-top: 66.67%;
   position: relative;
   overflow: hidden;
-  background-color: #f8f9fa; /* 加载时的背景色 */
+  background-color: var(--bs-secondary-bg);
 }
 
 /* 懒加载图片样式 */
@@ -909,26 +980,26 @@ onMounted(async () => {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: all 0.3s ease;
+  transition: all 0.5s ease;
 }
 
 /* 加载中的图片样式 */
 .article-cover-img.lazy-loading {
-  filter: blur(5px);
-  opacity: 0.7;
-  transform: scale(1.02);
+  filter: blur(8px);
+  opacity: 0.6;
+  transform: scale(1.05);
 }
 
 /* 加载完成的图片样式 */
 .article-cover-img.lazy-loaded {
   filter: blur(0);
   opacity: 1;
-  animation: fadeIn 0.5s ease;
+  animation: fadeIn 0.6s ease;
 }
 
 /* 加载失败的图片样式 */
 .article-cover-img.lazy-error {
-  background-color: #e9ecef;
+  background-color: var(--bs-secondary-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -936,13 +1007,18 @@ onMounted(async () => {
 
 .article-cover-img.lazy-error::after {
   content: '图片加载失败';
-  font-size: 0.7rem;
-  color: #868e96;
+  font-size: 0.9rem;
+  color: var(--bs-tertiary-color);
 }
 
 /* 内容区 */
 .article-content {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: var(--bs-card-bg);
+  padding: 1.5rem;
 }
 
 /* 图片样式 */
@@ -952,32 +1028,42 @@ img {
   height: auto;
 }
 
-.article-cover-img:hover {
-  transform: scale(1.03);
-  filter: brightness(0.95);
+.article-cover:hover .article-cover-img {
+  transform: scale(1.1);
+  filter: brightness(0.9);
 }
 
 /* 标题 */
 .article-title {
-  font-size: clamp(1rem, 1.4vw, 1.2rem);
-  line-height: 1.6;
-  white-space: nowrap;
+  font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+  line-height: 1.4;
+  font-weight: 700;
+  color: var(--bs-heading-color);
+  transition: color 0.3s ease;
+  margin: 0 0 1rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.article-item-card:hover .article-title {
+  color: var(--bs-primary);
 }
 
 /* 摘要 */
 .article-desc {
-  font-size: 0.6rem;
-  color: #6c757d;
-  line-height: 1.3;
-  margin: 0;
-}
-
-.text-truncate-1 {
-  white-space: nowrap;
+  font-size: 0.9rem;
+  color: var(--bs-secondary-color);
+  line-height: 1.6;
+  margin: 0 0 1.25rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-grow: 1;
 }
 
 /* 无图模式标题 */
@@ -985,27 +1071,52 @@ img {
   font-size: clamp(1.2rem, 2vw, 1.5rem);
   line-height: 1.4;
   font-weight: 700;
+  color: var(--bs-heading-color);
+  transition: color 0.3s ease;
+}
+
+.article-item-list:hover .article-title-list {
+  color: var(--bs-primary);
 }
 
 /* 无图模式摘要 */
 .article-desc-list {
-  font-size: 0.9rem;
-  color: #6c757d;
-  line-height: 1.5;
-  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  color: var(--bs-secondary-color);
+  line-height: 1.6;
+  margin: 0.75rem 0 1.25rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 无图模式卡片样式 */
+.article-item-list {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 4px !important;
+  border: 1px solid var(--bs-border-color);
+  background-color: var(--bs-card-bg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.article-item-list:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 123, 255, 0.3);
 }
 
 /* 元信息 */
 .article-meta {
-  font-size: 0.7rem;
-  color: #868e96;
-  line-height: 1.2;
-}
-
-.meta-left, .meta-right {
+  font-size: 0.85rem;
+  color: var(--bs-tertiary-color);
+  line-height: 1.4;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--bs-border-color);
 }
 
 .meta-item {
@@ -1013,21 +1124,192 @@ img {
   display: flex;
   align-items: center;
   white-space: nowrap;
-  padding-left: 0 !important;
+  transition: color 0.3s ease;
+}
+
+.article-item-card:hover .meta-item,
+.article-item-list:hover .meta-item {
+  color: var(--bs-primary);
 }
 
 .meta-item .bi {
   font-size: 0.9em;
-  margin-right: 0.2rem;
+  margin-right: 0.4rem;
   line-height: 1;
   vertical-align: middle;
-  color: #9ca3af;
+  color: var(--bs-tertiary-color);
+  transition: color 0.3s ease;
+}
+
+.article-item-card:hover .meta-item .bi,
+.article-item-list:hover .meta-item .bi {
+  color: var(--bs-primary);
 }
 
 /* 分页样式 */
-.pagination-container {
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+.pagination-container,
+.tag-pagination-container {
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+}
+
+.pagination {
+  gap: 0.5rem;
+}
+
+.page-item {
+  transition: all 0.3s ease;
+}
+
+.page-item .page-link {
+  border-radius: 10px;
+  padding: 0.6rem 1.2rem;
+  transition: all 0.3s ease;
+  border: 1px solid var(--bs-border-color);
+  color: var(--bs-dark);
+  font-weight: 500;
+  background-color: var(--bs-white);
+  min-width: 48px;
+  text-align: center;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-item:hover .page-link {
+  background-color: var(--bs-light);
+  color: var(--bs-dark);
+  border-color: var(--bs-border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.page-item.active .page-link {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: var(--bs-white);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
+}
+
+.page-item.disabled .page-link {
+  opacity: 0.6;
+  cursor: not-allowed;
+  border-color: var(--bs-border-color);
+  color: var(--bs-secondary-color);
+  background-color: var(--bs-tertiary-bg);
+}
+
+.page-item.disabled:hover .page-link {
+  background-color: var(--bs-tertiary-bg);
+  color: var(--bs-secondary-color);
+  border-color: var(--bs-border-color);
+  box-shadow: none;
+}
+
+/* 分页输入框样式 */
+.page-input-container {
+  display: flex;
+  align-items: center;
+  padding: 0 1.2rem;
+  background-color: var(--bs-white);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 10px;
+  color: var(--bs-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  height: 48px;
+  min-width: 140px;
+}
+
+.page-input {
+  width: 60px;
+  background-color: var(--bs-light);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  color: var(--bs-dark);
+  text-align: center;
+  font-weight: 600;
+  margin: 0 0.5rem;
+  transition: all 0.3s ease;
+  height: 32px;
+}
+
+.page-input:focus {
+  outline: none;
+  background-color: var(--bs-white);
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.page-input::-webkit-inner-spin-button,
+.page-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.page-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.page-separator {
+  font-weight: 600;
+  margin: 0 0.25rem;
+}
+
+.page-total {
+  font-weight: 600;
+}
+
+/* 暗黑模式适配 */
+[data-bs-theme=dark] {
+  .page-item .page-link {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+    color: var(--bs-light);
+  }
+  
+  .page-item:hover .page-link {
+    background-color: var(--bs-secondary);
+    color: var(--bs-light);
+    border-color: var(--bs-border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .page-item.active .page-link {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: var(--bs-white);
+  }
+  
+  .page-item.disabled .page-link {
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-secondary-color);
+  }
+  
+  .page-item.disabled:hover .page-link {
+    background-color: var(--bs-tertiary-bg);
+  }
+  
+  .page-input-container {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+    color: var(--bs-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .page-input {
+    background-color: var(--bs-secondary);
+    border-color: var(--bs-border-color);
+    color: var(--bs-light);
+  }
+  
+  .page-input:focus {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }
 }
 
 /* 动画 */
@@ -1165,82 +1447,50 @@ img {
 
 /* 暗黑模式适配 */
 [data-bs-theme=dark] {
-  /* 标签标题和描述 */
-  .tag-title {
-    color: var(--bs-heading-color);
+  /* 标签信息卡片 */
+  .tag-info {
+    background-color: var(--bs-card-bg);
+    border-color: var(--bs-border-color);
   }
   
-  .tag-description {
-    color: var(--bs-secondary-color);
+  /* 标签统计卡片 */
+  .tags-count {
+    background-color: var(--bs-card-bg);
+    border-color: var(--bs-border-color);
+  }
+  
+  /* 标签网格卡片 */
+  .tags-grid {
+    background-color: var(--bs-card-bg);
+    border-color: var(--bs-border-color);
   }
   
   /* 标签卡片 */
   .tag-card {
-    background-color: var(--bs-body-bg);
+    background-color: var(--bs-card-bg);
     border-color: var(--bs-border-color);
-  }
-  
-  .tag-card-title {
-    color: var(--bs-heading-color);
-  }
-  
-  .tag-card-description {
-    color: var(--bs-secondary-color);
-  }
-  
-  .tag-article-count {
-    color: var(--bs-tertiary-color);
-  }
-  
-  /* 文章卡片 */
-  .article-item-card,
-  .article-item-list {
-    background-color: var(--bs-body-bg);
-    border-color: var(--bs-border-color);
-  }
-  
-  /* 标题 */
-  .article-title {
-    color: var(--bs-heading-color);
-  }
-  
-  /* 摘要 */
-  .article-desc {
-    color: var(--bs-secondary-color);
-  }
-  
-  /* 无图模式标题 */
-  .article-title-list {
-    color: var(--bs-heading-color);
-  }
-  
-  /* 无图模式摘要 */
-  .article-desc-list {
-    color: var(--bs-secondary-color);
-  }
-  
-  /* 元信息 */
-  .article-meta {
-    color: var(--bs-tertiary-color);
-  }
-  
-  .meta-item .bi {
-    color: var(--bs-tertiary-color);
   }
   
   /* 加载动画 */
   .article-cover-img:not([src]) {
-    background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+    background: linear-gradient(90deg, var(--bs-secondary-bg) 25%, var(--bs-tertiary-bg) 50%, var(--bs-secondary-bg) 75%);
   }
   
   /* 悬停效果 */
   .article-item-card:hover,
   .article-item-list:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: rgba(0, 123, 255, 0.4);
   }
   
   .tag-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: rgba(0, 123, 255, 0.4);
+  }
+  
+  /* 加载失败的图片样式 */
+  .article-cover-img.lazy-error::after {
+    color: var(--bs-tertiary-color);
   }
 }
 </style>

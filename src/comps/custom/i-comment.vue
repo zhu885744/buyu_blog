@@ -18,6 +18,11 @@
           placeholder="请输入你的评论..."
           :class="{ 'bg-dark border-dark-subtle': isDarkMode }"
         ></textarea>
+        <div class="text-end mt-1">
+          <small class="text-muted" :class="{ 'text-danger': commentInput.length > (commentConfig.max_length || 500) }">
+            {{ commentInput.length }} / {{ commentConfig.max_length || 500 }}
+          </small>
+        </div>
         
         <!-- 表情选择面板 -->
         <div v-if="showEmojiPicker" class="emoji-picker-container mt-2 p-3 border bg-body mb-3" :class="{ 'bg-dark border-dark-subtle': isDarkMode }">
@@ -44,13 +49,19 @@
             <i class="bi bi-emoji-smile me-1"></i> 表情
           </button>
           <button 
-              @click="handlePublish"
-              class="btn btn-primary px-4 publish-btn flex-grow-1"
-              :disabled="!commentInput.trim() || isCommenting"
-            >
-              <i class="bi" :class="isCommenting ? 'bi-arrow-clockwise spin' : 'bi-paper-plane-fill'"></i>
-              {{ isCommenting ? ' 发布中...' : ' 发布评论' }}
-            </button>
+            @click="handlePublish"
+            class="btn btn-primary px-4 publish-btn flex-grow-1"
+            :disabled="!commentInput.trim() || isCommenting"
+            :class="{ 'publishing': isCommenting }"
+          >
+            <span v-if="isCommenting" class="d-flex align-items-center justify-content-center">
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              发布中...
+            </span>
+            <span v-else>
+              <i class="bi bi-paper-plane-fill me-1"></i> 发布评论
+            </span>
+          </button>
         </div>
       </div>
 
@@ -74,12 +85,34 @@
         </div>
       </div>
 
+      <!-- 评论加载状态 -->
+      <div v-if="loading" class="py-5">
+        <!-- 骨架屏 -->
+        <div class="comment-skeleton" v-for="i in 3" :key="i">
+          <div class="d-flex align-items-start mb-3">
+            <div class="skeleton-avatar rounded-circle me-3"></div>
+            <div class="flex-grow-1">
+              <div class="skeleton-line skeleton-line-short mb-2"></div>
+              <div class="skeleton-line skeleton-line-sm mb-1"></div>
+            </div>
+          </div>
+          <div class="skeleton-line skeleton-line-medium mb-2"></div>
+          <div class="skeleton-line skeleton-line-long mb-3"></div>
+          <div class="d-flex gap-2">
+            <div class="skeleton-button skeleton-button-small"></div>
+            <div class="skeleton-button skeleton-button-small"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- 评论列表：接收props的评论数据，无数据时展示提示 -->
-      <div class="comments-list" v-if="processedCommentList.length > 0">
+      <div class="comments-list" v-else-if="processedCommentList.length > 0">
         <div 
-          class="comment-item pb-4 mb-4 border-bottom border-secondary-subtle"
+          class="comment-item pb-4 mb-4 border-bottom border-secondary-subtle animate-fade-in"
+          :class="{ 'comment-new': item.isNew }"
           v-for="(item, index) in processedCommentList" 
           :key="item.id || index"
+          :style="{ animationDelay: `${index * 0.1}s` }"
         >
           <div class="d-flex align-items-start mb-3">
             <img 
@@ -151,6 +184,11 @@
               placeholder="请输入你的回复..."
               :class="{ 'bg-dark border-dark-subtle': isDarkMode }"
             ></textarea>
+            <div class="text-end mt-1">
+              <small class="text-muted" :class="{ 'text-danger': replyInput.length > (commentConfig.max_length || 500) }">
+                {{ replyInput.length }} / {{ commentConfig.max_length || 500 }}
+              </small>
+            </div>
             
             <!-- 回复表情选择面板 -->
             <div v-if="showReplyEmojiPicker" class="emoji-picker-container mt-2 mb-3 p-3 border bg-body" :class="{ 'bg-dark border-dark-subtle': isDarkMode }">
@@ -180,9 +218,15 @@
                 @click="handleSubmitReply()"
                 class="btn btn-sm btn-primary px-3 flex-grow-1"
                 :disabled="!replyInput.trim() || isCommenting"
+                :class="{ 'publishing': isCommenting }"
               >
-                <i class="bi" :class="isCommenting ? 'bi-arrow-clockwise spin' : ''"></i>
-                {{ isCommenting ? ' 发送中...' : ' 发送回复' }}
+                <span v-if="isCommenting" class="d-flex align-items-center justify-content-center">
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  发送中...
+                </span>
+                <span v-else>
+                  <i class="bi bi-reply-fill me-1"></i> 发送回复
+                </span>
               </button>
               <button 
                 @click="cancelReply"
@@ -295,7 +339,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue'
 import { useCommStore } from '@/store/comm'
 import utils from '@/utils/utils'
 import request from '@/utils/request'
@@ -343,6 +387,11 @@ const props = defineProps({
   totalComments: {
     type: Number,
     default: 0
+  },
+  // 新增：加载状态
+  loading: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -518,158 +567,121 @@ function checkRateLimit() {
     const timeWindow = rateLimit.time_window || 60
     
     const now = Date.now() / 1000 // 转换为秒
-    const timeSinceLastComment = now - lastCommentTime.value
     
-    if (timeSinceLastComment < timeWindow) {
-      Toast.error(`评论过于频繁，请等待 ${Math.ceil(timeWindow - timeSinceLastComment)} 秒后再试`)
-      return false
+    // 检查评论数量限制和时间窗口
+    // 从localStorage获取评论计数
+    try {
+      const commentCount = parseInt(localStorage.getItem('commentCount')) || 0
+      const lastResetTime = parseInt(localStorage.getItem('lastResetTime')) || 0
+      
+      // 检查是否需要重置计数
+      if (now - lastResetTime > timeWindow) {
+        localStorage.setItem('commentCount', '1')
+        localStorage.setItem('lastResetTime', now.toString())
+      } else {
+        // 检查是否超过最大评论数
+        if (commentCount >= maxCount) {
+          Toast.error(`在 ${timeWindow} 秒内最多只能发送 ${maxCount} 条评论`)
+          return false
+        }
+        // 增加评论计数
+        localStorage.setItem('commentCount', (commentCount + 1).toString())
+      }
+    } catch (error) {
+      console.error('存储评论计数失败:', error)
     }
   }
   return true
 }
 
+// 格式化时间函数
+const formatTime = (timestamp) => {
+  if (!timestamp || timestamp === 0) return '未知时间'
+  return utils.timeToDate(timestamp, 'Y-m-d H:i')
+}
+
+// 处理@提及的函数
+const handleAtMentions = (content) => {
+  if (!content) return ''
+  // 先将换行符转换为<br>标签
+  let processedContent = content.replace(/\n/g, '<br>')
+  // 匹配@用户名格式，替换为带颜色的HTML
+  return processedContent.replace(/@([\u4e00-\u9fa5\w]+)/g, '<span class="at-mention">@$1</span>')
+}
+
+// 提取用户信息的公共函数
+const extractUserInfo = (item, articleAuthorId, isReply = false) => {
+  // 尝试从不同位置获取等级信息
+  let levelName = '';
+  
+  // 1. 尝试从 result.author.result.level 获取（正确路径）
+  if (item.result?.author?.result?.level?.current?.name) {
+    levelName = item.result.author.result.level.current.name;
+  } 
+  // 2. 尝试从 result.author.level 获取
+  else if (item.result?.author?.level?.current?.name) {
+    levelName = item.result.author.level.current.name;
+  }
+  // 3. 尝试从 author.result.level 获取
+  else if (item.author?.result?.level?.current?.name) {
+    levelName = item.author.result.level.current.name;
+  }
+  // 4. 尝试从 level 获取
+  else if (item.level?.current?.name) {
+    levelName = item.level.current.name;
+  }
+  // 5. 尝试从 result.author.result.levelName 获取
+  else if (item.result?.author?.result?.levelName) {
+    levelName = item.result.author.result.levelName;
+  }
+  // 6. 尝试从 result.author.levelName 获取
+  else if (item.result?.author?.levelName) {
+    levelName = item.result.author.levelName;
+  }
+  // 7. 尝试从 author.levelName 获取
+  else if (item.author?.levelName) {
+    levelName = item.author.levelName;
+  }
+  // 8. 尝试从 levelName 获取
+  else if (item.levelName) {
+    levelName = item.levelName;
+  }
+  
+  // 获取评论作者ID
+  const commentAuthorId = item.result?.author?.id || item.author?.id || null;
+  // 判断是否为文章作者
+  const isCommentAuthor = commentAuthorId && articleAuthorId && String(commentAuthorId) === String(articleAuthorId);
+  
+  return {
+    id: item.id,
+    authorId: commentAuthorId,
+    avatar: item.result?.author?.avatar?.trim() || item.author?.avatar?.trim() || item.avatar || (isReply ? 'https://picsum.photos/62/62' : 'https://picsum.photos/60/60'),
+    nickname: item.result?.author?.nickname || item.author?.nickname || item.nickname || '匿名用户',
+    level: item.result?.author?.result?.level?.current?.value || item.result?.author?.level?.current?.value || item.author?.result?.level?.current?.value || item.level?.current?.value || item.level || null,
+    levelName: levelName,
+    time: formatTime(item.create_time || item.time || item.update_time),
+    content: handleAtMentions(item.content || ''),
+    isAuthor: isCommentAuthor || item.result?.author?.result?.isAuthor || item.result?.author?.isAuthor || item.author?.result?.isAuthor || item.isAuthor || false
+  }
+}
+
+// 处理回复数据
+const processReplies = (replies, articleAuthorId) => {
+  if (!Array.isArray(replies)) return []
+  return replies.map(reply => {
+    return extractUserInfo(reply, articleAuthorId, true)
+  })
+}
+
 // 🌟 4. 处理评论数据，适配 API 返回格式
 const processedCommentList = computed(() => {
+  const articleAuthorId = props.articleAuthor.id;
   return props.commentList.map(item => {
-    // 格式化时间
-       const formatTime = (timestamp) => {
-         if (!timestamp || timestamp === 0) return '未知时间'
-         return utils.timeToDate(timestamp, 'Y-m-d H:i')
-       }
-    
-    // 处理回复数据
-    const processReplies = (replies) => {
-      if (!Array.isArray(replies)) return []
-      return replies.map(reply => {
-        // 尝试从不同位置获取等级信息
-        let levelName = '';
-        
-        // 1. 尝试从 result.author.result.level 获取（正确路径）
-        if (reply.result?.author?.result?.level?.current?.name) {
-          levelName = reply.result.author.result.level.current.name;
-        } 
-        // 2. 尝试从 result.author.level 获取
-        else if (reply.result?.author?.level?.current?.name) {
-          levelName = reply.result.author.level.current.name;
-        }
-        // 3. 尝试从 author.result.level 获取
-        else if (reply.author?.result?.level?.current?.name) {
-          levelName = reply.author.result.level.current.name;
-        }
-        // 4. 尝试从 level 获取
-        else if (reply.level?.current?.name) {
-          levelName = reply.level.current.name;
-        }
-        // 5. 尝试从 result.author.result.levelName 获取
-        else if (reply.result?.author?.result?.levelName) {
-          levelName = reply.result.author.result.levelName;
-        }
-        // 6. 尝试从 result.author.levelName 获取
-        else if (reply.result?.author?.levelName) {
-          levelName = reply.result.author.levelName;
-        }
-        // 7. 尝试从 author.levelName 获取
-        else if (reply.author?.levelName) {
-          levelName = reply.author.levelName;
-        }
-        // 8. 尝试从 levelName 获取
-        else if (reply.levelName) {
-          levelName = reply.levelName;
-        }
-        
-        // 获取评论作者ID
-        const commentAuthorId = reply.result?.author?.id || reply.author?.id || null;
-        // 获取文章作者ID
-        const articleAuthorId = props.articleAuthor.id;
-        // 判断是否为文章作者
-        const isCommentAuthor = commentAuthorId && articleAuthorId && String(commentAuthorId) === String(articleAuthorId);
-        
-        // 处理@提及的函数，添加颜色效果和换行支持
-        const handleAtMentions = (content) => {
-          if (!content) return ''
-          // 先将换行符转换为<br>标签
-          let processedContent = content.replace(/\n/g, '<br>')
-          // 匹配@用户名格式，替换为带颜色的HTML
-          return processedContent.replace(/@([\u4e00-\u9fa5\w]+)/g, '<span class="at-mention">@$1</span>')
-        }
-        
-        return {
-          id: reply.id,
-          authorId: commentAuthorId,
-          avatar: reply.result?.author?.avatar?.trim() || reply.author?.avatar?.trim() || reply.avatar || 'https://picsum.photos/62/62',
-          nickname: reply.result?.author?.nickname || reply.author?.nickname || reply.nickname || '匿名用户',
-          level: reply.result?.author?.result?.level?.current?.value || reply.result?.author?.level?.current?.value || reply.author?.result?.level?.current?.value || reply.level?.current?.value || reply.level || null,
-          levelName: levelName,
-          time: formatTime(reply.create_time || reply.time || reply.update_time),
-          content: handleAtMentions(reply.content || ''),
-          isAuthor: isCommentAuthor || reply.result?.author?.result?.isAuthor || reply.result?.author?.isAuthor || reply.author?.result?.isAuthor || reply.isAuthor || false
-        }
-      })
-    }
-    
-    // 尝试从不同位置获取等级信息
-    let levelName = '';
-    
-    // 1. 尝试从 result.author.result.level 获取（正确路径）
-    if (item.result?.author?.result?.level?.current?.name) {
-      levelName = item.result.author.result.level.current.name;
-    } 
-    // 2. 尝试从 result.author.level 获取
-    else if (item.result?.author?.level?.current?.name) {
-      levelName = item.result.author.level.current.name;
-    }
-    // 3. 尝试从 author.result.level 获取
-    else if (item.author?.result?.level?.current?.name) {
-      levelName = item.author.result.level.current.name;
-    }
-    // 4. 尝试从 level 获取
-    else if (item.level?.current?.name) {
-      levelName = item.level.current.name;
-    }
-    // 5. 尝试从 result.author.result.levelName 获取
-    else if (item.result?.author?.result?.levelName) {
-      levelName = item.result.author.result.levelName;
-    }
-    // 6. 尝试从 result.author.levelName 获取
-    else if (item.result?.author?.levelName) {
-      levelName = item.result.author.levelName;
-    }
-    // 7. 尝试从 author.levelName 获取
-    else if (item.author?.levelName) {
-      levelName = item.author.levelName;
-    }
-    // 8. 尝试从 levelName 获取
-    else if (item.levelName) {
-      levelName = item.levelName;
-    }
-    
-    // 获取评论作者ID
-    const commentAuthorId = item.result?.author?.id || item.author?.id || null;
-    // 获取文章作者ID
-    const articleAuthorId = props.articleAuthor.id;
-    // 判断是否为文章作者
-    const isCommentAuthor = commentAuthorId && articleAuthorId && String(commentAuthorId) === String(articleAuthorId);
-    
-    // 处理@提及的函数，添加颜色效果和换行支持
-    const handleAtMentions = (content) => {
-      if (!content) return ''
-      // 先将换行符转换为<br>标签
-      let processedContent = content.replace(/\n/g, '<br>')
-      // 匹配@用户名格式，替换为带颜色的HTML
-      return processedContent.replace(/@([\u4e00-\u9fa5\w]+)/g, '<span class="at-mention">@$1</span>')
-    }
-    
+    const userInfo = extractUserInfo(item, articleAuthorId)
     return {
-      id: item.id,
-      authorId: commentAuthorId,
-      avatar: item.result?.author?.avatar?.trim() || item.author?.avatar?.trim() || item.avatar || 'https://picsum.photos/60/60',
-      nickname: item.result?.author?.nickname || item.author?.nickname || item.nickname || '匿名用户',
-      level: item.result?.author?.result?.level?.current?.value || item.result?.author?.level?.current?.value || item.author?.result?.level?.current?.value || item.level?.current?.value || item.level || null,
-      levelName: levelName,
-      time: formatTime(item.create_time || item.time || item.update_time),
-      content: handleAtMentions(item.content || ''),
-      isAuthor: isCommentAuthor || item.result?.author?.result?.isAuthor || item.result?.author?.isAuthor || item.author?.result?.isAuthor || item.isAuthor || false,
-      replies: processReplies(item.replies)
+      ...userInfo,
+      replies: processReplies(item.replies, articleAuthorId),
+      isNew: item.isNew || false // 标记新评论
     }
   })
 })
@@ -692,15 +704,6 @@ const handlePublish = async () => {
   isCommenting.value = true
   
   try {
-    // 记录评论时间
-    const currentTime = Date.now() / 1000
-    lastCommentTime.value = currentTime
-    try {
-      localStorage.setItem('lastCommentTime', currentTime.toString())
-    } catch (error) {
-      console.error('存储评论时间失败:', error)
-    }
-    
     // 发布评论
     emit('publishComment', {
       articleId: props.articleId,
@@ -778,15 +781,6 @@ const handleSubmitReply = async () => {
   isCommenting.value = true
   
   try {
-    // 记录评论时间
-    const currentTime = Date.now() / 1000
-    lastCommentTime.value = currentTime
-    try {
-      localStorage.setItem('lastCommentTime', currentTime.toString())
-    } catch (error) {
-      console.error('存储评论时间失败:', error)
-    }
-    
     // 提交回复
     emit('replyComment', {
       articleId: props.articleId,
@@ -1012,35 +1006,49 @@ const initCommentLikeData = async () => {
   if (processedCommentList.value.length === 0) return
 
   // 获取所有评论和回复的ID
-  const allCommentIds = []
+  const allCommentIds = new Set() // 使用Set避免重复ID
   processedCommentList.value.forEach(comment => {
     if (comment.id) {
-      allCommentIds.push(comment.id)
+      allCommentIds.add(comment.id)
     }
     if (comment.replies && comment.replies.length > 0) {
       comment.replies.forEach(reply => {
         if (reply.id) {
-          allCommentIds.push(reply.id)
+          allCommentIds.add(reply.id)
         }
       })
     }
   })
 
-  // console.log('所有评论和回复的ID:', allCommentIds)
+  const commentIdArray = Array.from(allCommentIds)
+  if (commentIdArray.length === 0) return
 
-  // 并行获取所有评论的点赞数和点赞状态
-  await Promise.all(
-    allCommentIds.map(async (id) => {
-      await getCommentLikeCount(id)
-      if (props.isLogin) {
-        await checkCommentLikeStatus(id)
-      }
-    })
-  )
+  // 过滤出未缓存的评论ID
+  const uncachedIds = commentIdArray.filter(id => !commentLikeCounts.value.has(id))
+  
+  if (uncachedIds.length > 0) {
+    // 批量获取点赞数（如果后端支持）
+    // 这里暂时保持单个请求，实际项目中可以实现批量API
+    await Promise.all(
+      uncachedIds.map(async (id) => {
+        await getCommentLikeCount(id)
+      })
+    )
+  }
 
-  // console.log('初始化评论点赞数据完成')
-  // console.log('评论点赞状态:', Object.fromEntries(commentLikes.value))
-  // console.log('评论点赞数:', Object.fromEntries(commentLikeCounts.value))
+  // 仅当用户登录时才获取点赞状态
+  if (props.isLogin) {
+    // 过滤出未检查点赞状态的评论ID
+    const unCheckedIds = commentIdArray.filter(id => !commentLikes.value.has(id))
+    
+    if (unCheckedIds.length > 0) {
+      await Promise.all(
+        unCheckedIds.map(async (id) => {
+          await checkCommentLikeStatus(id)
+        })
+      )
+    }
+  }
 }
 
 // 🌟 9. 初始化Bootstrap tooltip + 检测系统深色模式
@@ -1064,15 +1072,7 @@ onMounted(async () => {
   // 应用评论配置
   applyCommentConfig()
   
-  // 从localStorage读取上次评论时间
-  try {
-    const storedTime = localStorage.getItem('lastCommentTime')
-    if (storedTime) {
-      lastCommentTime.value = parseFloat(storedTime) || 0
-    }
-  } catch (error) {
-    console.error('读取评论时间失败:', error)
-  }
+
 
   // 初始化评论点赞数据
   initCommentLikeData()
@@ -1202,10 +1202,81 @@ watch(
 
 :deep(.btn) {
   transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 :deep(.btn:hover) {
   transform: translateY(-1px);
+}
+
+/* 点赞/点踩按钮动画 */
+:deep(.btn-outline-success:hover) {
+  background-color: var(--bs-success);
+  border-color: var(--bs-success);
+  color: white;
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+:deep(.btn-outline-danger:hover) {
+  background-color: var(--bs-danger);
+  border-color: var(--bs-danger);
+  color: white;
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+/* 按钮点击动画 */
+:deep(.btn:active) {
+  transform: translateY(0) scale(0.98);
+  transition: transform 0.1s ease;
+}
+
+/* 评论输入框的焦点动画 */
+:deep(textarea:focus) {
+  border-color: var(--bs-primary) !important;
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25) !important;
+  outline: none !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--bs-primary-rgb), 0.2);
+}
+
+/* 表情选择器的动画效果 */
+.emoji-picker-container {
+  transition: all 0.3s ease;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 5;
+  animation: emojiPickerFadeIn 0.3s ease forwards;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+@keyframes emojiPickerFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 回复输入框的展开/收起动画 */
+.reply-form {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: rgba(var(--bs-primary-rgb), 0.02);
+  animation: replyFormSlideIn 0.3s ease forwards;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+@keyframes replyFormSlideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 无评论提示动画 */
@@ -1305,6 +1376,15 @@ watch(
   box-shadow: none;
 }
 
+.publish-btn.publishing {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.publishing .spinner-border {
+  animation: spin 1s linear infinite;
+}
+
 /* 表情功能样式 */
 .emoji-button {
   transition: all 0.3s ease;
@@ -1386,6 +1466,63 @@ watch(
     bottom: 1rem !important;
     end: 1rem !important;
   }
+  
+  /* 评论容器响应式调整 */
+  .comments-list {
+    padding: 0.75rem;
+  }
+  
+  /* 评论项响应式调整 */
+  .comment-item {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .comment-item p {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  /* 头像响应式调整 */
+  .avatar {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  
+  /* 回复项响应式调整 */
+  .reply-item {
+    margin-left: 0.75rem;
+    padding-left: 0.75rem;
+  }
+  
+  /* 按钮响应式调整 */
+  .btn {
+    font-size: 0.8rem;
+    padding: 0.375rem 0.75rem;
+  }
+  
+  /* 输入框响应式调整 */
+  .form-control {
+    font-size: 0.85rem;
+  }
+  
+  /* 分页按钮响应式调整 */
+  .page-item .page-link {
+    padding: 0.4rem 0.8rem;
+    min-width: 40px;
+    height: 40px;
+  }
+}
+
+/* 平板设备响应式调整 */
+@media (min-width: 769px) and (max-width: 992px) {
+  .comments-list {
+    padding: 0.875rem;
+  }
+  
+  .comment-item {
+    padding: 0.875rem;
+  }
 }
 
 /* 加载动画 */
@@ -1399,6 +1536,230 @@ watch(
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* 评论容器样式 */
+.comments-list {
+  padding: 1rem;
+  background-color: rgba(var(--bs-primary-rgb), 0.01);
+  border-radius: 8px;
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.1);
+}
+
+/* 评论项淡入动画 */
+.animate-fade-in {
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 新评论动画效果 */
+.comment-new {
+  animation: newCommentAnimation 1.5s ease-in-out forwards;
+  border-left: 4px solid var(--bs-primary);
+  background-color: rgba(var(--bs-primary-rgb), 0.05);
+}
+
+@keyframes newCommentAnimation {
+  0% {
+    background-color: rgba(var(--bs-primary-rgb), 0.2);
+    transform: translateY(-5px);
+  }
+  50% {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+  }
+  100% {
+    background-color: rgba(var(--bs-primary-rgb), 0.05);
+    transform: translateY(0);
+  }
+}
+
+/* 暗黑模式新评论效果 */
+[data-bs-theme=dark] .comment-new {
+  background-color: rgba(var(--bs-primary-rgb), 0.1);
+  animation: newCommentAnimationDark 1.5s ease-in-out forwards;
+}
+
+@keyframes newCommentAnimationDark {
+  0% {
+    background-color: rgba(var(--bs-primary-rgb), 0.3);
+    transform: translateY(-5px);
+  }
+  50% {
+    background-color: rgba(var(--bs-primary-rgb), 0.2);
+  }
+  100% {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    transform: translateY(0);
+  }
+}
+
+/* 分页样式 */
+.pagination {
+  gap: 0.5rem;
+}
+
+.page-item {
+  transition: all 0.3s ease;
+}
+
+.page-item .page-link {
+  border-radius: 10px;
+  padding: 0.6rem 1.2rem;
+  transition: all 0.3s ease;
+  border: 1px solid var(--bs-border-color);
+  color: var(--bs-dark);
+  font-weight: 500;
+  background-color: var(--bs-white);
+  min-width: 48px;
+  text-align: center;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-item:hover .page-link {
+  background-color: var(--bs-light);
+  color: var(--bs-dark);
+  border-color: var(--bs-border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.page-item.active .page-link {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: var(--bs-white);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
+}
+
+.page-item.disabled .page-link {
+  opacity: 0.6;
+  cursor: not-allowed;
+  border-color: var(--bs-border-color);
+  color: var(--bs-secondary-color);
+  background-color: var(--bs-tertiary-bg);
+}
+
+.page-item.disabled:hover .page-link {
+  background-color: var(--bs-tertiary-bg);
+  color: var(--bs-secondary-color);
+  border-color: var(--bs-border-color);
+  box-shadow: none;
+}
+
+/* 骨架屏样式 */
+.comment-skeleton {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  background-color: rgba(var(--bs-primary-rgb), 0.01);
+}
+
+.skeleton-avatar {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border: 2px solid rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.skeleton-line {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: 4px;
+  height: 16px;
+}
+
+.skeleton-line-short {
+  width: 60%;
+  height: 18px;
+}
+
+.skeleton-line-sm {
+  width: 40%;
+  height: 14px;
+}
+
+.skeleton-line-medium {
+  width: 80%;
+}
+
+.skeleton-line-long {
+  width: 100%;
+}
+
+.skeleton-button {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: 4px;
+  height: 32px;
+}
+
+.skeleton-button-small {
+  width: 80px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* 暗黑模式骨架屏 */
+[data-bs-theme=dark] {
+  .skeleton-avatar,
+  .skeleton-line,
+  .skeleton-button {
+    background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+  }
+  
+  .comment-skeleton {
+    background-color: rgba(var(--bs-primary-rgb), 0.05);
+  }
+  
+  .page-item .page-link {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+    color: var(--bs-light);
+  }
+  
+  .page-item:hover .page-link {
+    background-color: var(--bs-secondary);
+    color: var(--bs-light);
+    border-color: var(--bs-border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .page-item.active .page-link {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: var(--bs-white);
+  }
+  
+  .page-item.disabled .page-link {
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-secondary-color);
+  }
+  
+  .page-item.disabled:hover .page-link {
+    background-color: var(--bs-tertiary-bg);
   }
 }
 </style>
