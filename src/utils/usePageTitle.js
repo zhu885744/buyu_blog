@@ -17,7 +17,7 @@ export function usePageTitle() {
   
   // 获取网站基础标题
   const baseTitle = computed(() => {
-    return commStore.siteInfo?.title || 'Xiao-INIS';
+    return commStore.siteInfo?.title || 'buyu-博客';
   });
   
   // 计算完整标题
@@ -87,7 +87,7 @@ export function setupRouteTitle(router) {
     // 只有当路由的路径发生变化时才更新标题
     if (to.path !== from.path) {
       const commStore = useCommStore();
-      const siteTitle = commStore.siteInfo?.title || 'Xiao-INIS';
+      const siteTitle = commStore.siteInfo?.title || 'buyu-博客';
       const pageTitle = to.meta.title || to.name || '未知页面';
       document.title = `${pageTitle} - ${siteTitle}`;
     }
