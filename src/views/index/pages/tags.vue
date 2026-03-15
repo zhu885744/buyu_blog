@@ -1398,10 +1398,6 @@ img {
     gap: 0.8rem;
   }
   
-  .article-item-card:hover {
-    transform: translateY(-2px);
-  }
-  
   .article-title {
     font-size: 1rem;
   }

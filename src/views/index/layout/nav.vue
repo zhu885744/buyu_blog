@@ -82,6 +82,20 @@
             <i :class="darkModeIcon"></i>
           </button>
           
+          <!-- 签到按钮 -->
+          <button 
+            v-if="store.comm.login.finish && store.comm.login.user"
+            class="btn btn-outline-success me-2" 
+            type="button" 
+            @click="doSign"
+            :disabled="signLoading || hasSigned"
+            :title="hasSigned ? '今日已签到' : '每日签到'"
+          >
+            <i v-if="!signLoading" :class="hasSigned ? 'bi bi-check-circle' : 'bi bi-calendar-check'"></i>
+            <i v-else class="bi bi-arrow-clockwise animate-spin"></i>
+            <span class="d-none d-lg-inline ms-1">{{ hasSigned ? '已签到' : '签到' }}</span>
+          </button>
+          
           <!-- 用户相关功能 -->
           <div class="d-flex align-items-center" v-if="store.comm.login.finish && store.comm.login.user">
             <!-- 已登录用户信息 -->
@@ -782,15 +796,40 @@ const fetchCategories = async () => {
   }
 }
 
+// 计算当天剩余时间（秒）
+const getTodayRemainingSeconds = () => {
+  const now = new Date()
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0)
+  return Math.floor((tomorrow - now) / 1000)
+}
+
 // 签到相关方法
 const checkSignStatus = async () => {
   if (!store.comm.login.finish || !store.comm.login.user) return
+  
+  // 缓存键
+  const cacheKey = `sign_status_${store.comm.login.user.id}`
+  
+  // 尝试从缓存获取签到状态
+  const cachedStatus = cache.get(cacheKey)
+  if (cachedStatus) {
+    hasSigned.value = cachedStatus.hasSigned
+    signDays.value = cachedStatus.signDays
+    return
+  }
   
   try {
     const response = await axios.get('/api/exp/check-in/status')
     if (response.code === 200) {
       hasSigned.value = response.data?.hasSigned || false
       signDays.value = response.data?.signDays || 0
+      
+      // 缓存签到状态，设置过期时间为当天剩余时间
+      const expireSeconds = getTodayRemainingSeconds()
+      cache.set(cacheKey, {
+        hasSigned: hasSigned.value,
+        signDays: signDays.value
+      }, expireSeconds)
     }
   } catch (error) {
     // console.error('获取签到状态失败：', error)
@@ -816,6 +855,14 @@ const doSign = async () => {
       hasSigned.value = true
       signDays.value += 1
       Toast.success(`签到成功！获得 ${response.data?.exp || 10} 点经验`)
+      
+      // 缓存签到状态，设置过期时间为当天剩余时间
+      const cacheKey = `sign_status_${store.comm.login.user.id}`
+      const expireSeconds = getTodayRemainingSeconds()
+      cache.set(cacheKey, {
+        hasSigned: hasSigned.value,
+        signDays: signDays.value
+      }, expireSeconds)
     } else {
       Toast.error(response.msg || '签到失败')
     }
@@ -861,10 +908,11 @@ onMounted(() => {
   method.getTheme()
 })
 
-// 当用户状态变化时重新初始化下拉菜单
+// 当用户状态变化时重新初始化下拉菜单和检查签到状态
 watch(() => store.comm.login.user, () => {
   nextTick(() => {
     initDropdowns()
+    checkSignStatus()
   })
 })
 

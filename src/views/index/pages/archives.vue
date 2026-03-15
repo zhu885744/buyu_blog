@@ -58,66 +58,77 @@
         <div class="article-content mt-4">
           <i-markdown :model-value="articleInfo.content || '暂无文章内容，敬请期待～'" />
         </div>
-        
-        <!-- 文章标签显示 -->
-        <div v-if="articleInfo.result?.tags && articleInfo.result.tags.length > 0" class="article-tags mt-4 d-flex flex-wrap justify-content-center gap-3">
-          <router-link 
-            v-for="tag in articleInfo.result.tags" 
-            :key="tag.id"
-            :to="`/tag/${tag.id}`"
-            class="badge rounded-pill text-bg-success py-1.5 px-4 transition-all duration-300 cursor-pointer text-decoration-none"
-          >
-            <i class="bi bi-tag me-1"></i> {{ tag.name }}
-          </router-link>
-        </div>
 
         <!-- 版权归属信息 -->
-        <div class="card border mt-4 overflow-hidden shadow-sm">
-          <div class="card-body">
-            <!-- 版权归属信息 -->
-            <div class="mb-1">
-              <div class="d-flex align-items-center">
-                <i class="bi bi-shield-check me-2"></i>
-                <span class="text-muted">版权属于：{{ articleInfo.result?.author?.nickname || '匿名' }}</span>
-              </div>
+        <div class="border rounded mt-3 p-2">
+          <!-- 版权归属信息 -->
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-c-circle text-primary fs-6"></i>
+            <span class="text-muted fs-6">版权属于：</span>
+            <span class="fs-6">{{ articleInfo.result?.author?.nickname || '匿名' }}</span>
+          </div>
+
+          <!-- 文章标签信息 -->
+          <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+            <i class="bi bi-tag text-primary fs-6"></i>
+            <span class="text-muted fs-6">文章标签：</span>
+            <div class="d-flex flex-wrap gap-2">
+              <router-link 
+                v-for="tag in articleInfo.result?.tags || []" 
+                :key="tag.id"
+                :to="`/tag/${tag.id}`"
+                class="text-primary hover:text-primary-emphasis transition-colors text-decoration-none fs-6"
+              >
+                {{ tag.name }}
+              </router-link>
+              <span v-if="!articleInfo.result?.tags || articleInfo.result.tags.length === 0" class="text-muted fs-6">无标签</span>
             </div>
-            <!-- 许可协议信息 -->
-            <div class="mb-1">
-              <div class="d-flex align-items-center">
-                <i class="bi bi-cc-circle me-2"></i>
-                <span class="text-muted">文章采用：<a class="bg-opacity-10 me-2" href="//creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener noreferrer nofollow" title="知识共享 署名-非商业性使用-相同方式共享 4.0 国际许可协议">
-                    CC BY-NC-SA 4.0
-                  </a>
-                  <span class="text-muted text-sm">知识共享许可协议授权</span></span>
-              </div>
-            </div>
+          </div>
+
+          <!-- 文章链接信息 -->
+          <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+            <i class="bi bi-link-45deg text-primary fs-6"></i>
+            <span class="text-muted fs-6">本文链接：</span>
+            <a class="text-primary hover:text-primary-emphasis transition-colors flex-1 break-all text-decoration-none fs-6" :href="currentUrl" target="_blank" rel="noopener noreferrer nofollow">
+              {{ currentUrl }}
+            </a>
+          </div>
+
+          <!-- 许可协议信息 -->
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <i class="bi bi-cc-circle text-primary fs-6"></i>
+            <span class="text-muted fs-6">文章采用：</span>
+            <a class="text-primary hover:text-primary-emphasis transition-colors text-decoration-none fs-6" href="//creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener noreferrer nofollow" title="知识共享 署名-非商业性使用-相同方式共享 4.0 国际许可协议">
+              CC BY-NC-SA 4.0
+            </a>
+            <span class="text-muted fs-6">许可协议授权</span>
           </div>
         </div>
         
         <!-- 文章操作按钮：点赞、分享、收藏 -->
-        <div class="mt-4 mb-4 d-flex justify-content-center">
-          <div class="btn-group gap-2" role="group" aria-label="文章操作">
+        <div class="mt-3 mb-3 d-flex justify-content-center">
+          <div class="btn-group gap-1" role="group" aria-label="文章操作">
             <button 
               @click="handleLike" 
-              class="btn btn-outline-danger"
+              class="btn btn-sm btn-outline-danger"
               :class="{ 'btn-danger text-white': isLiked, 'btn-outline-danger': !isLiked }"
             >
-              <i :class="isLiked ? 'bi bi-hand-thumbs-up-fill' : 'bi bi-hand-thumbs-up'" class="me-2"></i>
+              <i :class="isLiked ? 'bi bi-hand-thumbs-up-fill' : 'bi bi-hand-thumbs-up'" class="me-1"></i>
               <span>{{ likeCount }}</span>
             </button>
             <button 
               @click="handleCollect" 
-              class="btn btn-outline-warning"
+              class="btn btn-sm btn-outline-warning"
               :class="{ 'btn-warning text-white': isCollected, 'btn-outline-warning': !isCollected }"
             >
-              <i :class="isCollected ? 'bi bi-star-fill' : 'bi bi-star'" class="me-2"></i>
+              <i :class="isCollected ? 'bi bi-star-fill' : 'bi bi-star'" class="me-1"></i>
               <span>{{ collectCount }}</span>
             </button>
             <button 
               @click="handleShare" 
-              class="btn btn-outline-success"
+              class="btn btn-sm btn-outline-success"
             >
-              <i class="bi bi-share me-2"></i>
+              <i class="bi bi-share me-1"></i>
               <span>{{ shareCount }}</span>
             </button>
           </div>
@@ -190,6 +201,9 @@ const isCollected = ref(false)
 const likeCount = ref(0)
 const shareCount = ref(0)
 const collectCount = ref(0)
+
+// 当前页面链接
+const currentUrl = ref('')
 
 // 路由实例
 const router = useRouter()
@@ -637,6 +651,11 @@ const checkUserActions = async () => {
 
 // 页面挂载执行核心逻辑
 onMounted(() => {
+  // 设置当前页面链接
+  if (typeof window !== 'undefined') {
+    currentUrl.value = window.location.href
+  }
+  
   const currentId = getCurrentArticleId()
   if (checkArticleId(currentId)) {
     getArticleDetail(Number(currentId))
@@ -908,26 +927,26 @@ watch(
   
   /* 文章操作按钮响应式调整 - 小按钮 */
   .btn-group {
-    width: 100%;
+    width: auto;
     gap: 0.5rem !important;
     flex-direction: row;
   }
   
   .btn {
-    flex: 1;
-    padding: 0.4rem 0.2rem !important;
+    flex: none;
+    padding: 0.3rem 0.5rem !important;
     font-size: 0.7rem;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-    min-width: 60px;
+    min-width: auto;
   }
   
   .btn .bi {
-    font-size: 1.1em;
-    margin-right: 0 !important;
-    margin-bottom: 0.2rem;
+    font-size: 1em;
+    margin-right: 0.3rem !important;
+    margin-bottom: 0;
   }
   
   .btn span {
@@ -939,7 +958,8 @@ watch(
   .btn .badge {
     font-size: 0.6rem;
     padding: 0.1rem 0.3rem !important;
-    margin-top: 0.2rem;
+    margin-top: 0;
+    margin-left: 0.2rem;
   }
 }
 
@@ -955,29 +975,18 @@ watch(
     padding: 0.2rem 0.5rem;
   }
   
-  /* 文章操作按钮响应式调整 - 更紧凑的布局 */
-  .btn-group {
-    width: 100%;
-    flex-direction: row;
-    gap: 0.3rem !important;
+  /* 版权归属信息响应式调整 */
+  .border.rounded.mt-4 {
+    padding: 0.75rem !important;
   }
   
-  .btn {
-    flex: 1;
-    padding: 0.3rem 0.1rem !important;
-    font-size: 0.6rem;
-    min-width: 50px;
+  .border.rounded.mt-4 .d-flex {
+    font-size: 0.7rem !important;
+    gap: 0.5rem !important;
   }
   
-  .btn .bi {
-    font-size: 1em;
-    margin-bottom: 0.1rem;
-  }
-  
-  .btn .badge {
-    font-size: 0.55rem;
-    padding: 0.05rem 0.25rem !important;
-    margin-top: 0.1rem;
+  .border.rounded.mt-4 .fs-6 {
+    font-size: 0.7rem !important;
   }
 }
 </style>

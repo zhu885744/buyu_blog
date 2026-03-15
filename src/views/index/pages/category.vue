@@ -1054,7 +1054,6 @@ img {
   .grid-article-list {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.25rem;
-    padding: 0 0.75rem;
   }
   .article-item-card {
     min-width: 160px;
@@ -1076,11 +1075,6 @@ img {
   .grid-article-list {
     grid-template-columns: 1fr;
     gap: 1.25rem;
-    padding: 0 0.5rem;
-  }
-  
-  .article-item-card:hover {
-    transform: translateY(-5px);
   }
   
   .article-title {
