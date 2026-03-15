@@ -149,7 +149,8 @@
 
 <script setup>
 import { ref, onMounted, watch, computed, nextTick } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
+import { push } from '@/utils/route'
 import request from '@/utils/request'
 import cache from '@/utils/cache'
 
@@ -160,11 +161,6 @@ import { useCommStore } from '@/store/comm'
 import { usePageTitle } from '@/utils/usePageTitle'
 
 // 存储
-const store = {
-  comm: useCommStore()
-};
-
-const router = useRouter()
 const route = useRoute()
 
 // 页面标题管理
@@ -226,8 +222,6 @@ const pageCount = computed(() => {
   return Math.ceil(total.value / limit.value)
 })
 
-
-
 // 从路由参数获取分类ID
 const getCurrentCategoryId = () => {
   return route.params.id
@@ -249,7 +243,7 @@ const goToArticle = (articleId) => {
   // 验证文章ID是否为有效的正整数
   const validArticleId = parseInt(articleId)
   if (!isNaN(validArticleId) && validArticleId > 0) {
-    router.push(`/archives/${validArticleId}`)
+    push(`/archives/${validArticleId}`)
   } else {
     // console.error('文章ID不合法:', articleId)
   }

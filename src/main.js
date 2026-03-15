@@ -25,20 +25,17 @@ import API from './api'
 // ========== 初始化应用 ==========
 async function initApp() {
   try {
-    // 1. 配置文件已经在模块加载时通过同步请求加载完成
-    console.log('配置文件已加载')
-    
-    // 2. 创建并配置应用实例
+    // 创建并配置应用实例
     const app = createApp(App)
     
-    // 3. 注册 Pinia（状态管理）
+    // 注册 Pinia（状态管理）
     const pinia = createPinia()
     app.use(pinia)
     
-    // 4. 注册路由
+    // 注册路由
     app.use(router)
     
-    // 5. 全局挂载/提供工具（按「通用 → 业务」顺序）
+    // 全局挂载/提供工具（按「通用 → 业务」顺序）
     if (typeof window !== 'undefined') {
       window.bootstrap = bootstrap
     }
@@ -62,13 +59,13 @@ async function initApp() {
     // ✅ API 全局挂载
     app.config.globalProperties.$api = API
     
-    // 6. 提前获取站点信息（在挂载前）
+    // 提前获取站点信息（在挂载前）
     console.log('正在获取站点信息...')
     const commStore = useCommStore()
     await commStore.fetchSiteInfo()
     console.log('站点信息获取完成')
     
-    // 8. 动态设置favicon
+    // 动态设置favicon
     if (commStore.siteInfo?.favicon && typeof window !== 'undefined') {
       const favicon = document.querySelector('link[rel="icon"]')
       if (favicon) {
@@ -77,12 +74,12 @@ async function initApp() {
       }
     }
     
-    // 9. 应用保存的暗黑模式设置
+    // 应用保存的暗黑模式设置
     // 不再自动切换，而是直接应用当前设置
     const htmlElement = document.documentElement
     htmlElement.setAttribute('data-bs-theme', commStore.isDarkMode ? 'dark' : 'light')
     
-    // 7. 挂载应用（确保所有配置完成后挂载）
+    // 挂载应用（确保所有配置完成后挂载）
     // 挂载前可等待路由就绪（可选，解决首屏路由白屏）
     await router.isReady()
     app.mount('#app')

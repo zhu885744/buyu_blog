@@ -225,7 +225,8 @@
 
 <script setup>
 import { ref, onMounted, watch, computed, nextTick } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
+import { push } from '@/utils/route'
 import request from '@/utils/request'
 import cache from '@/utils/cache'
 import { usePageTitle } from '@/utils/usePageTitle'
@@ -244,11 +245,6 @@ import loadingGif from '@/assets/img/ljz.gif'
 import { useCommStore } from '@/store/comm'
 
 // 存储
-const store = {
-  comm: useCommStore()
-};
-
-const router = useRouter()
 const route = useRoute()
 
 // 页面标题管理
@@ -338,7 +334,7 @@ const goToArticle = (articleId) => {
   // 验证文章ID是否为有效的正整数
   const validArticleId = parseInt(articleId)
   if (!isNaN(validArticleId) && validArticleId > 0) {
-    router.push(`/archives/${validArticleId}`)
+    push(`/archives/${validArticleId}`)
   } else {
     // console.error('文章ID不合法:', articleId)
   }
@@ -606,7 +602,7 @@ const getTagArticles = async (tagId, page = 1) => {
 // 选择标签
 const selectTag = (tagId) => {
   // 导航到单个标签页面
-  router.push(`/tag/${tagId}`)
+  push(`/tag/${tagId}`)
 }
 
 // 切换分页

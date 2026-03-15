@@ -159,7 +159,8 @@
 
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
+import { goBack } from '@/utils/route'
 import request from '@/utils/request'
 import iMarkdown from '@/comps/custom/i-markdown.vue'
 import CommentList from '@/comps/custom/i-comment.vue'
@@ -206,7 +207,6 @@ const collectCount = ref(0)
 const currentUrl = ref('')
 
 // 路由实例
-const router = useRouter()
 const route = useRoute()
 
 /**
@@ -663,7 +663,7 @@ onMounted(() => {
     error.value = true
     loading.value = false
     setDynamicTitle('文章ID不合法')
-    setTimeout(() => router.go(-1), 3000)
+    setTimeout(() => goBack(), 3000)
   }
   
   detectDarkMode()

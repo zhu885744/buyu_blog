@@ -331,7 +331,8 @@ import axios from '@/utils/request'
 import utils from '@/utils/utils'
 import Toast from '@/utils/toast'
 import cache from '@/utils/cache'
-import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
+import { push as routePush } from '@/utils/route'
 import { useCommStore } from '@/store/comm'
 import { useConfigStore } from '@/store/config'
 
@@ -342,7 +343,7 @@ import DialogResetPassword from '@/comps/index/dialog/reset-password.vue'
 import Search from '@/comps/index/search.vue'
 
 // 初始化router
-const router = useRouter()
+const route = useRoute()
 
 // 导航项数据
 const navItems = ref([])
@@ -561,7 +562,7 @@ const method = {
   
   // 路由跳转 - 关闭抽屉
   push: (params = {}) => {
-    router.push(params)
+    routePush(params)
     state.drawer.show = false
   },
 }
@@ -927,7 +928,7 @@ nextTick(async () => {
 })
 
 // 监听当前路由 name 改变
-watch(() => router.currentRoute.value.name, (val) => {
+watch(() => route.name, (val) => {
   const map = {
     'index-themes-list': 'themes',
     'index-articles-list': 'articles',

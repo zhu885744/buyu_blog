@@ -182,12 +182,11 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { push } from '@/utils/route'
 import axios from '@/utils/request'
 import Toast from '@/utils/toast'
 
-// Router
-const router = useRouter()
+
 
 // 状态管理
 const state = reactive({
@@ -560,12 +559,12 @@ const navigateToResult = (result) => {
   switch (result.type) {
     case 'article':
       if (result.id) {
-        router.push(`/archives/${result.id}`)
+        push(`/archives/${result.id}`)
       }
       break
     case 'page':
       if (result.key) {
-        router.push(`/${result.key}`)
+        push(`/${result.key}`)
       } else {
         Toast.error('页面路径无效，无法跳转')
       }
@@ -573,7 +572,7 @@ const navigateToResult = (result) => {
     case 'tag':
       // 假设标签页面的路由是 /tag/:id
       if (result.id) {
-        router.push(`/tag/${result.id}`)
+        push(`/tag/${result.id}`)
       }
       break
     default:

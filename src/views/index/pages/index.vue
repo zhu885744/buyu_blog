@@ -205,8 +205,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue'
+import { push } from '@/utils/route'
 import request from '@/utils/request' 
 // 导入公告组件
 import INotice from '@/comps/custom/i-notice.vue'
@@ -220,7 +220,7 @@ setDynamicTitle('首页');
 import defaultCover from '@/assets/img/fm.avif'
 import loadingGif from '@/assets/img/ljz.gif'
 
-const router = useRouter()
+
 
 const articleList = ref([])
 const loading = ref(false)
@@ -431,7 +431,7 @@ const getArticleList = async (page = 1) => {
 }
 
 const toArticleDetail = (id) => {
-  router.push(`/archives/${id}`) 
+  push(`/archives/${id}`) 
 }
 
 onMounted(async () => {

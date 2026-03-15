@@ -300,9 +300,10 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useCommStore } from '@/store/comm'
 import request from '@/utils/request'
+import { goBack } from '@/utils/route'
 import iMarkdown from '@/comps/custom/i-markdown.vue'
 import iComment from '@/comps/custom/i-comment.vue'
 import utils from '@/utils/utils'
@@ -332,7 +333,6 @@ const errorMsg = ref('')
 const pageInfo = ref({})
 
 // 路由实例
-const router = useRouter()
 const route = useRoute()
 
 // 评论相关响应式数据
@@ -511,7 +511,7 @@ const initPage = async () => {
     error.value = true
     loading.value = false
     setDynamicTitle('页面标识不合法')
-    setTimeout(() => router.go(-1), 3000)
+    setTimeout(() => goBack(), 3000)
   }
 }
 
