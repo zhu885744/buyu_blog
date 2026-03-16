@@ -1,24 +1,7 @@
 <template>
-  <div class="card mt-2">
-    <!-- 用户中心卡片头部 -->
-    <div class="card-header">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0 d-flex align-items-center gap-2 fw-semibold">
-          用户主页
-        </h5>
-        <button 
-          @click="fetchUserInfo" 
-          class="btn btn-sm btn-outline-primary rounded-full px-4 py-1.5 transition-all hover:bg-primary hover:text-white"
-          :disabled="loading"
-        >
-          <i class="bi" :class="loading ? 'bi-arrow-clockwise spin' : 'bi-arrow-clockwise'"></i>
-          刷新
-        </button>
-      </div>
-    </div>
-
+  <div class="mt-2">
     <!-- 加载状态 -->
-    <div v-if="loading" class="card-body text-center py-10">
+    <div v-if="loading" class="card text-center py-10">
       <div class="spinner-border" role="status">
         <span class="visually-hidden">加载中...</span>
       </div>
@@ -26,7 +9,7 @@
     </div>
 
     <!-- 错误状态 -->
-    <div v-else-if="error" class="card-body text-center py-10">
+    <div v-else-if="error" class="card text-center py-10">
       <i class="bi bi-exclamation-circle text-danger fs-1"></i>
       <p class="mt-3 text-muted">{{ error }}</p>
       <button 
@@ -38,79 +21,92 @@
     </div>
 
     <!-- 无数据状态 -->
-    <div v-else-if="!userInfo" class="card-body text-center py-10">
+    <div v-else-if="!userInfo" class="card text-center py-10">
       <i class="bi bi-person-x text-muted fs-1"></i>
       <p class="mt-3 text-muted">用户不存在</p>
     </div>
 
     <!-- 用户信息内容 -->
-    <div v-else class="card-body p-4">
+    <div v-else class="profile-grid">
       <!-- 用户基本信息 -->
-      <div class="user-basic-info mb-4">
-        <div class="d-flex align-items-start gap-4 mb-4">
-          <div class="position-relative">
-            <img 
-              :src="userInfo.avatar || defaultAvatar" 
-              :alt="userInfo.nickname"
-              class="rounded-3 border-4 border-white shadow-md transition-transform duration-300 hover:scale-105"
-              width="120"
-              height="120"
-              style="object-fit: cover;"
-              @error="handleAvatarError"
-            >
-          </div>
-          <div class="flex-grow-1">
-            <div class="d-flex align-items-center gap-3 mb-2">
-              <h3 class="mb-0 fw-bold text-lg">
-                {{ userInfo.nickname }}
-              </h3>
-              <!-- 头衔 -->
-              <span v-if="userInfo.title" class="badge text-bg-success rounded-full px-3 py-1 text-sm font-medium">
-                {{ userInfo.title }}
-              </span>
-              <!-- 等级标识 -->
-              <span v-if="userLevelInfo" class="badge bg-primary rounded-full px-3 py-1 text-sm font-medium">
-                Lv.{{ userLevelInfo.current.value }} {{ userLevelInfo.current.name }}
-              </span>
-            </div>
-            <!-- 个人网站 -->
-            <div v-if="userInfo.json?.website?.url" class="text-sm mb-3 mt-3">
-              <a 
-                :href="userInfo.json.website.url" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                class="d-flex align-items-center gap-2 hover:text-primary-emphasis transition-colors"
+      <div class="profile-basic card">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-4">
+            <div class="position-relative">
+              <img 
+                :src="userInfo.avatar || defaultAvatar" 
+                :alt="userInfo.nickname"
+                class="rounded-3 border-4 border-white shadow-md transition-transform duration-300 hover:scale-105"
+                width="120"
+                height="120"
+                style="object-fit: cover;"
+                @error="handleAvatarError"
               >
-                <i class="bi bi-globe"></i>
-                {{ userInfo.json.website.name || userInfo.json.website.url }}
-              </a>
             </div>
-            <!-- 用户信息 -->
-            <div class="d-flex align-items-center gap-4 flex-wrap text-sm mb-2">
-              <!-- 注册时间 -->
-              <span class="d-flex align-items-center gap-2 text-gray-600">
-                <i class="bi bi-calendar3"></i>
-                注册于 {{ formatDate(userInfo.create_time) }}
-              </span>
-              <!-- 最后登录 -->
-              <span class="d-flex align-items-center gap-2 text-gray-600">
-                <i class="bi bi-clock text-success"></i>
-                最近登录 {{ formatDate(userInfo.login_time) }}
-              </span>
+            <div class="flex-grow-1">
+              <div class="d-flex align-items-center gap-3 mb-2">
+                <h3 class="mb-0 fw-bold text-lg">
+                  {{ userInfo.nickname }}
+                </h3>
+                <!-- 头衔 -->
+                <span v-if="userInfo.title" class="badge text-bg-success rounded-full px-3 py-1 text-sm font-medium">
+                  {{ userInfo.title }}
+                </span>
+                <!-- 等级标识 -->
+                <span v-if="userLevelInfo" class="badge bg-primary rounded-full px-3 py-1 text-sm font-medium">
+                  Lv.{{ userLevelInfo.current.value }} {{ userLevelInfo.current.name }}
+                </span>
+              </div>
+              <!-- 个人网站 -->
+              <div v-if="userInfo.json?.website?.url" class="text-sm mb-3 mt-3">
+                <a 
+                  :href="userInfo.json.website.url" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  class="d-flex align-items-center gap-2 hover:text-primary-emphasis transition-colors"
+                >
+                  <i class="bi bi-globe"></i>
+                  {{ userInfo.json.website.name || userInfo.json.website.url }}
+                </a>
+              </div>
+              <!-- 用户信息 -->
+              <div class="d-flex align-items-center gap-4 flex-wrap text-sm mb-2">
+                <!-- 注册时间 -->
+                <span class="d-flex align-items-center gap-2 text-gray-600">
+                  <i class="bi bi-calendar3"></i>
+                  注册于 {{ formatDate(userInfo.create_time) }}
+                </span>
+                <!-- 最后登录 -->
+                <span class="d-flex align-items-center gap-2 text-gray-600">
+                  <i class="bi bi-clock text-success"></i>
+                  最近登录 {{ formatDate(userInfo.login_time) }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- 个人简介 -->
-        <div class="user-description mb-4 p-4 bg-gradient-to-r from-primary/5 to-secondary/5 border border-primary/10">
-          <p class="mb-0 fs-6 leading-relaxed">
-            <i class="bi bi-quote me-3 opacity-75"></i>
+      <!-- 个人简介 -->
+      <div class="profile-description card">
+        <div class="card-body">
+          <h6 class="card-title mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-quote fs-5"></i>
+            个人简介
+          </h6>
+          <p class="card-text fs-6 leading-relaxed">
             {{ userInfo.description || '这个人很懒，什么都没有留下！' }}
           </p>
         </div>
+      </div>
 
-        <!-- 用户标签 -->
-        <div class="user-tags mb-4">
+      <!-- 用户标签 -->
+      <div class="profile-tags card">
+        <div class="card-body">
+          <h6 class="card-title mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-tags fs-5"></i>
+            用户标签
+          </h6>
           <div class="d-flex align-items-center gap-3 flex-wrap">
             <!-- 用户组标识 -->
             <span v-for="(group, index) in userGroups" :key="index" class="badge bg-warning text-dark px-4 py-2 fw-medium cursor-pointer">
@@ -136,84 +132,96 @@
       </div>
 
       <!-- 用户等级信息 -->
-      <div v-if="userLevelInfo" class="user-level mb-5">
-        <h6 class="mb-3 d-flex align-items-center gap-2 text-lg font-medium">
-          <i class="bi bi-activity fs-5"></i>
-          等级信息
-        </h6>
-        <div class="p-4 bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-gray-600">当前等级</span>
-            <span class="fw-bold">Lv.{{ userLevelInfo.current.value }} {{ userLevelInfo.current.name }}</span>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <span class="text-gray-600">下一等级</span>
-            <span class="text-gray-700">Lv.{{ userLevelInfo.next.value }} {{ userLevelInfo.next.name }}</span>
-          </div>
-          <!-- 经验值进度条 -->
-          <div class="mb-1">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-sm text-gray-500">经验值进度</span>
-              <span class="text-sm font-medium">{{ userInfo.exp }} / {{ userLevelInfo.next.exp }}</span>
+      <div v-if="userLevelInfo" class="profile-level card">
+        <div class="card-body">
+          <h6 class="card-title mb-3 d-flex align-items-center gap-2 text-lg font-medium">
+            <i class="bi bi-activity fs-5"></i>
+            等级信息
+          </h6>
+          <div class="p-4 bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 rounded-lg">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="text-gray-600">当前等级</span>
+              <span class="fw-bold">Lv.{{ userLevelInfo.current.value }} {{ userLevelInfo.current.name }}</span>
             </div>
-            <div class="progress rounded-full overflow-hidden" style="height: 10px;">
-              <div 
-                class="progress-bar bg-gradient-to-r from-primary to-secondary" 
-                :style="{ width: experienceProgress + '%' }"
-                role="progressbar"
-                :aria-valuenow="userInfo.exp"
-                :aria-valuemin="userLevelInfo.current.exp"
-                :aria-valuemax="userLevelInfo.next.exp"
-              ></div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <span class="text-gray-600">下一等级</span>
+              <span class="text-gray-700">Lv.{{ userLevelInfo.next.value }} {{ userLevelInfo.next.name }}</span>
             </div>
-          </div>
-          <!-- 等级描述 -->
-          <div class="mt-4">
-            <p class="text-sm text-gray-600 mb-0">
-              {{ userLevelInfo.current.description }}
-            </p>
+            <!-- 经验值进度条 -->
+            <div class="mb-1">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-sm text-gray-500">经验值进度</span>
+                <span class="text-sm font-medium">{{ userInfo.exp }} / {{ userLevelInfo.next.exp }}</span>
+              </div>
+              <div class="progress rounded-full overflow-hidden" style="height: 10px;">
+                <div 
+                  class="progress-bar bg-gradient-to-r from-primary to-secondary" 
+                  :style="{ width: experienceProgress + '%' }"
+                  role="progressbar"
+                  :aria-valuenow="userInfo.exp"
+                  :aria-valuemin="userLevelInfo.current.exp"
+                  :aria-valuemax="userLevelInfo.next.exp"
+                ></div>
+              </div>
+            </div>
+            <!-- 等级描述 -->
+            <div class="mt-4">
+              <p class="text-sm text-gray-600 mb-0">
+                {{ userLevelInfo.current.description }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- 用户权限信息 -->
-      <div v-if="userAuthInfo" class="user-auth mb-5">
-        <h6 class="mb-3 d-flex align-items-center gap-2 text-lg font-medium">
-          <i class="bi bi-shield-check fs-5"></i>
-          权限信息
-        </h6>
-        <div class="p-4 bg-gradient-to-r from-success/10 to-secondary/10 border border-success/20">
-          <div class="mb-3">
-            <span class="fw-medium text-gray-700">用户组：</span>
-            <span v-for="(group, index) in userAuthInfo.group.list" :key="index" class="badge bg-success text-white mx-2 px-3 py-1 rounded-full">
-              {{ group.name }}
-            </span>
-          </div>
-          <div>
-            <span class="fw-medium text-gray-700">权限范围：</span>
-            <span class="badge bg-success-subtle text-success mx-2 px-3 py-1 rounded-full">
-              {{ userAuthInfo.all ? '全部权限' : '部分权限' }}
-            </span>
+      <div v-if="userAuthInfo" class="profile-auth card">
+        <div class="card-body">
+          <h6 class="card-title mb-3 d-flex align-items-center gap-2 text-lg font-medium">
+            <i class="bi bi-shield-check fs-5"></i>
+            权限信息
+          </h6>
+          <div class="p-4 bg-gradient-to-r from-success/10 to-secondary/10 border border-success/20 rounded-lg">
+            <div class="mb-3">
+              <span class="fw-medium text-gray-700">用户组：</span>
+              <span v-for="(group, index) in userAuthInfo.group.list" :key="index" class="badge bg-success text-white mx-2 px-3 py-1 rounded-full">
+                {{ group.name }}
+              </span>
+            </div>
+            <div>
+              <span class="fw-medium text-gray-700">权限范围：</span>
+              <span class="badge bg-success-subtle text-success mx-2 px-3 py-1 rounded-full">
+                {{ userAuthInfo.all ? '全部权限' : '部分权限' }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- 交互按钮 -->
-      <div class="user-actions d-flex gap-2 flex-wrap">
-        <button 
-          @click="copyUserInfo" 
-          class="btn btn-outline-primary btn-sm px-4 py-2"
-        >
-          <i class="bi bi-copy"></i>
-          复制信息
-        </button>
-        <button 
-          @click="shareUserInfo" 
-          class="btn btn-outline-secondary btn-sm px-4 py-2"
-        >
-          <i class="bi bi-share"></i>
-          分享
-        </button>
+      <div class="profile-actions card">
+        <div class="card-body">
+          <h6 class="card-title mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-gear fs-5"></i>
+            操作
+          </h6>
+          <div class="user-actions d-flex gap-2 flex-wrap">
+            <button 
+              @click="copyUserInfo" 
+              class="btn btn-outline-primary btn-sm px-4 py-2"
+            >
+              <i class="bi bi-copy"></i>
+              复制信息
+            </button>
+            <button 
+              @click="shareUserInfo" 
+              class="btn btn-outline-secondary btn-sm px-4 py-2"
+            >
+              <i class="bi bi-share"></i>
+              分享
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -462,6 +470,25 @@ watch(
 </script>
 
 <style scoped>
+/* 网格布局 */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+/* 卡片通用样式 */
+.card {
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
 /* 加载动画 */
 .spin {
   animation: spin 1s linear infinite;
@@ -476,21 +503,68 @@ watch(
   }
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .btn-sm {
-    font-size: 0.8rem;
-    padding: 0.4rem 0.8rem;
+/* 响应式网格布局 */
+@media (min-width: 768px) {
+  .profile-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .profile-basic {
+    grid-column: 1 / -1;
+  }
+  
+  .profile-description {
+    grid-column: 1 / -1;
+  }
+  
+  .profile-tags {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .profile-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .profile-basic {
+    grid-column: 1 / -1;
+  }
+  
+  .profile-description {
+    grid-column: 1 / -1;
+  }
+  
+  .profile-tags {
+    grid-column: 1 / -1;
+  }
+  
+  .profile-level {
+    grid-column: 1 / 3;
+  }
+  
+  .profile-auth {
+    grid-column: 3 / 4;
+  }
+  
+  .profile-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+/* 移动端响应式设计 */
+@media (max-width: 767px) {
+  .author-profile {
+    padding: 1rem 0;
+  }
+  
+  .profile-grid {
+    gap: 1rem;
   }
   
   /* 加载状态 */
   .text-center.py-10 {
-    padding: 6rem 1rem !important;
-  }
-  
-  /* 用户基本信息 */
-  .user-basic-info {
-    margin-bottom: 1.5rem;
+    padding: 4rem 1rem !important;
   }
   
   /* 头像和用户信息 */
@@ -498,7 +572,7 @@ watch(
     flex-direction: column;
     align-items: center !important;
     text-align: center;
-    gap: 1.5rem !important;
+    gap: 1rem !important;
   }
   
   /* 头像 */
@@ -517,11 +591,6 @@ watch(
     margin-bottom: 0.5rem !important;
   }
   
-  .text-muted.mb-3 {
-    font-size: 0.9rem;
-    margin-bottom: 1rem !important;
-  }
-  
   /* 用户信息行 */
   .d-flex.align-items-center.gap-4.flex-wrap {
     justify-content: center;
@@ -535,74 +604,15 @@ watch(
     gap: 0.5rem !important;
   }
   
-  /* 头衔居中 */
-  .text-muted.mb-3 {
-    text-align: center;
-  }
-  
   /* 个人网站模块居中 */
   .text-sm > a.d-flex {
     justify-content: center;
   }
   
-  .text-sm {
-    font-size: 0.8rem;
-  }
-  
-  /* 个人简介 */
-  .user-description {
-    padding: 1rem !important;
-    margin-bottom: 1.5rem !important;
-  }
-  
-  .user-description p {
-    font-size: 0.9rem;
-    line-height: 1.5;
-  }
-  
   /* 用户标签 */
-  .user-tags {
-    margin-bottom: 1.5rem !important;
-  }
-  
   .d-flex.align-items-center.gap-3.flex-wrap {
     justify-content: center;
     gap: 0.5rem !important;
-  }
-  
-  .badge.rounded-full {
-    padding: 0.4rem 0.8rem !important;
-    font-size: 0.75rem !important;
-    margin-bottom: 0.5rem;
-  }
-  
-  /* 等级信息和权限信息 */
-  .user-level,
-  .user-auth {
-    margin-bottom: 1.5rem !important;
-  }
-  
-  h6.mb-3 {
-    font-size: 1rem !important;
-    margin-bottom: 1rem !important;
-  }
-  
-  .p-4 {
-    padding: 1rem !important;
-  }
-  
-  /* 进度条 */
-  .progress {
-    height: 8px !important;
-  }
-  
-  /* 权限信息 */
-  .mb-3 {
-    margin-bottom: 1rem !important;
-  }
-  
-  .badge {
-    margin-bottom: 0.5rem;
   }
   
   /* 交互按钮 */
@@ -611,34 +621,24 @@ watch(
     gap: 0.5rem !important;
   }
   
-  /* 响应式文本调整 */
-  .text-gray-600,
-  .text-gray-700 {
-    font-size: 0.9rem;
-  }
-  
-  .fw-bold {
-    font-size: 0.95rem;
-  }
-  
-  /* 确保标签不溢出 */
-  .user-tags .d-flex {
-    flex-wrap: wrap;
-  }
-  
-  /* 确保按钮组在小屏幕上正确显示 */
-  .user-actions {
-    flex-wrap: wrap;
-  }
-  
   .user-actions .btn {
     flex: 1;
     min-width: calc(50% - 0.25rem);
   }
+  
+  /* 卡片内容 padding 调整 */
+  .card-body {
+    padding: 1rem !important;
+  }
+  
+  /* 标题大小调整 */
+  h6.card-title {
+    font-size: 1rem !important;
+  }
 }
 
 /* 平板设备优化 */
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (min-width: 768px) and (max-width: 1023px) {
   /* 头像大小调整 */
   img[src*="avatar"] {
     width: 100px !important;
@@ -648,11 +648,6 @@ watch(
   /* 标签间距调整 */
   .d-flex.align-items-center.gap-3.flex-wrap {
     gap: 0.75rem !important;
-  }
-  
-  /* 按钮大小调整 */
-  .btn {
-    font-size: 0.9rem;
   }
 }
 
@@ -665,38 +660,15 @@ watch(
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
   
-  .card-header {
-    background-color: var(--bs-secondary-bg);
-    border-color: var(--bs-border-color);
+  /* 卡片悬停效果 */
+  .card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
   
   /* 文本颜色 */
   .text-gray-600,
   .text-gray-700 {
     color: var(--bs-secondary-color) !important;
-  }
-  
-  /* 用户描述区域 */
-  .user-description {
-    background: linear-gradient(to right, rgba(133, 133, 133, 0.05), rgba(157, 157, 157, 0.05));
-    border-color: rgba(133, 133, 133, 0.1);
-  }
-  
-  /* 等级信息区域 */
-  .user-level .p-4 {
-    background: linear-gradient(to right, rgba(133, 133, 133, 0.1), rgba(157, 157, 157, 0.1));
-    border-color: rgba(133, 133, 133, 0.2);
-  }
-  
-  /* 权限信息区域 */
-  .user-auth .p-4 {
-    background: linear-gradient(to right, rgba(110, 196, 143, 0.1), rgba(157, 157, 157, 0.1));
-    border-color: rgba(110, 196, 143, 0.2);
-  }
-  
-  /* 标签样式 */
-  .badge {
-    transition: all 0.2s ease;
   }
   
   /* 头像边框 */

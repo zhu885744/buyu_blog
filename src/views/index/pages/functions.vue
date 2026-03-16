@@ -118,124 +118,180 @@
               <form class="global-config-form">
                 <!-- 网站基本信息 -->
                 <div class="form-section mb-6">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">网站基本信息</h3>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-info-circle me-2 text-primary"></i>
+                    网站基本信息
+                  </h3>
                   <div class="row g-4">
                     <div class="col-md-6">
-                      <label for="site-title" class="form-label">网站标题</label>
-                      <input 
-                        type="text" 
-                        class="form-control rounded-1 border-gray-300 shadow-sm"
-                        id="site-title"
-                        v-model="globalConfig.title"
-                        placeholder="输入您的网站标题"
-                      >
-                      <div class="form-text text-muted mt-1">显示在浏览器标签和网站头部</div>
+                      <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                        <label for="site-title" class="form-label fw-medium text-gray-800 mb-2 d-block">
+                          <i class="bi bi-type me-2 text-primary"></i>
+                          网站标题
+                        </label>
+                        <input 
+                          type="text" 
+                          class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          id="site-title"
+                          v-model="globalConfig.title"
+                          placeholder="输入您的网站标题"
+                        >
+                        <div class="form-text text-muted mt-2">显示在浏览器标签和网站头部</div>
+                      </div>
                     </div>
                     <div class="col-md-6">
-                      <label for="site-description" class="form-label">网站描述</label>
-                      <input 
-                        type="text" 
-                        class="form-control rounded-1 border-gray-300 shadow-sm"
-                        id="site-description"
-                        v-model="globalConfig.description"
-                        placeholder="输入您的网站描述"
-                      >
-                      <div class="form-text text-muted mt-1">用于SEO和社交媒体分享</div>
+                      <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                        <label for="site-description" class="form-label fw-medium text-gray-800 mb-2 d-block">
+                          <i class="bi bi-file-text me-2 text-primary"></i>
+                          网站描述
+                        </label>
+                        <input 
+                          type="text" 
+                          class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          id="site-description"
+                          v-model="globalConfig.description"
+                          placeholder="输入您的网站描述"
+                        >
+                        <div class="form-text text-muted mt-2">用于SEO和社交媒体分享</div>
+                      </div>
                     </div>
                     <div class="col-md-6">
-                      <label for="site-keyword" class="form-label">网站关键词</label>
-                      <input 
-                        type="text" 
-                        class="form-control rounded-1 border-gray-300 shadow-sm"
-                        id="site-keyword"
-                        v-model="globalConfig.keyword"
-                        placeholder="输入关键词，用逗号分隔"
-                      >
-                      <div class="form-text text-muted mt-1">用于SEO优化，多个关键词用逗号分隔</div>
+                      <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                        <label for="site-keyword" class="form-label fw-medium text-gray-800 mb-2 d-block">
+                          <i class="bi bi-tags me-2 text-primary"></i>
+                          网站关键词
+                        </label>
+                        <input 
+                          type="text" 
+                          class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          id="site-keyword"
+                          v-model="globalConfig.keyword"
+                          placeholder="输入关键词，用逗号分隔"
+                        >
+                        <div class="form-text text-muted mt-2">用于SEO优化，多个关键词用逗号分隔</div>
+                      </div>
                     </div>
                     <div class="col-md-6">
-                      <label for="site-avatar" class="form-label">网站LOGO</label>
-                      <input 
-                        type="text" 
-                        class="form-control rounded-1 border-gray-300 shadow-sm"
-                        id="site-avatar"
-                        v-model="globalConfig.avatar"
-                        placeholder="输入LOGO URL"
-                      >
-                      <div class="form-text text-muted mt-1">网站的LOGO图片</div>
+                      <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                        <label for="site-avatar" class="form-label fw-medium text-gray-800 mb-2 d-block">
+                          <i class="bi bi-image me-2 text-primary"></i>
+                          网站LOGO
+                        </label>
+                        <input 
+                          type="text" 
+                          class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          id="site-avatar"
+                          v-model="globalConfig.avatar"
+                          placeholder="输入LOGO URL"
+                        >
+                        <div class="form-text text-muted mt-2">网站的LOGO图片</div>
+                      </div>
                     </div>
                     <div class="col-md-6">
-                      <label for="site-favicon" class="form-label">网站图标</label>
-                      <input 
-                        type="text" 
-                        class="form-control rounded-1 border-gray-300 shadow-sm"
-                        id="site-favicon"
-                        v-model="globalConfig.favicon"
-                        placeholder="输入favicon URL"
-                      >
-                      <div class="form-text text-muted mt-1">浏览器标签显示的图标</div>
+                      <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                        <label for="site-favicon" class="form-label fw-medium text-gray-800 mb-2 d-block">
+                          <i class="bi bi-file-earmark-image me-2 text-primary"></i>
+                          网站图标
+                        </label>
+                        <input 
+                          type="text" 
+                          class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          id="site-favicon"
+                          v-model="globalConfig.favicon"
+                          placeholder="输入favicon URL"
+                        >
+                        <div class="form-text text-muted mt-2">浏览器标签显示的图标</div>
+                      </div>
                     </div>
                     <div class="col-md-6">
-                      <label for="site-date" class="form-label">建站日期</label>
-                      <input 
-                        type="date" 
-                        class="form-control rounded-1 border-gray-300 shadow-sm"
-                        id="site-date"
-                        :value="formatDate(globalConfig.date)"
-                        @change="handleDateChange"
-                      >
-                      <div class="form-text text-muted mt-1">网站的建立日期</div>
+                      <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                        <label for="site-date" class="form-label fw-medium text-gray-800 mb-2 d-block">
+                          <i class="bi bi-calendar me-2 text-primary"></i>
+                          建站日期
+                        </label>
+                        <input 
+                          type="date" 
+                          class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          id="site-date"
+                          :value="formatDate(globalConfig.date)"
+                          @change="handleDateChange"
+                        >
+                        <div class="form-text text-muted mt-2">网站的建立日期</div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <!-- 备案信息 -->
                 <div class="form-section mb-6">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">备案信息</h3>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-shield-check me-2 text-primary"></i>
+                    备案信息
+                  </h3>
                   <div class="row g-4">
                     <div class="col-md-6">
-                      <label for="copy-code" class="form-label">ICP备案号</label>
-                      <input 
-                        type="text" 
-                        class="form-control rounded-1 border-gray-300 shadow-sm"
-                        id="copy-code"
-                        v-model="globalConfig.copy.code"
-                        placeholder="输入ICP备案号"
-                      >
-                      <div class="form-text text-muted mt-1">工信部ICP备案号</div>
+                      <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                        <label for="copy-code" class="form-label fw-medium text-gray-800 mb-2 d-block">
+                          <i class="bi bi-file-earmark-text me-2 text-primary"></i>
+                          ICP备案号
+                        </label>
+                        <input 
+                          type="text" 
+                          class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          id="copy-code"
+                          v-model="globalConfig.copy.code"
+                          placeholder="输入ICP备案号"
+                        >
+                        <div class="form-text text-muted mt-2">工信部ICP备案号</div>
+                      </div>
                     </div>
                     <div class="col-md-6">
-                      <label for="copy-link" class="form-label">ICP备案链接</label>
-                      <input 
-                        type="text" 
-                        class="form-control rounded-1 border-gray-300 shadow-sm"
-                        id="copy-link"
-                        v-model="globalConfig.copy.link"
-                        placeholder="输入备案链接"
-                      >
-                      <div class="form-text text-muted mt-1">备案查询链接</div>
+                      <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                        <label for="copy-link" class="form-label fw-medium text-gray-800 mb-2 d-block">
+                          <i class="bi bi-link me-2 text-primary"></i>
+                          ICP备案链接
+                        </label>
+                        <input 
+                          type="text" 
+                          class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          id="copy-link"
+                          v-model="globalConfig.copy.link"
+                          placeholder="输入备案链接"
+                        >
+                        <div class="form-text text-muted mt-2">备案查询链接</div>
+                      </div>
                     </div>
                     <div class="col-md-6">
-                      <label for="police-code" class="form-label">公安备案号</label>
-                      <input 
-                        type="text" 
-                        class="form-control rounded-1 border-gray-300 shadow-sm"
-                        id="police-code"
-                        v-model="globalConfig.police.code"
-                        placeholder="输入公安备案号"
-                      >
-                      <div class="form-text text-muted mt-1">公安联网备案号</div>
+                      <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                        <label for="police-code" class="form-label fw-medium text-gray-800 mb-2 d-block">
+                          <i class="bi bi-shield me-2 text-primary"></i>
+                          公安备案号
+                        </label>
+                        <input 
+                          type="text" 
+                          class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          id="police-code"
+                          v-model="globalConfig.police.code"
+                          placeholder="输入公安备案号"
+                        >
+                        <div class="form-text text-muted mt-2">公安联网备案号</div>
+                      </div>
                     </div>
                     <div class="col-md-6">
-                      <label for="police-link" class="form-label">公安备案链接</label>
-                      <input 
-                        type="text" 
-                        class="form-control rounded-1 border-gray-300 shadow-sm"
-                        id="police-link"
-                        v-model="globalConfig.police.link"
-                        placeholder="输入公安备案链接"
-                      >
-                      <div class="form-text text-muted mt-1">公安备案查询链接</div>
+                      <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                        <label for="police-link" class="form-label fw-medium text-gray-800 mb-2 d-block">
+                          <i class="bi bi-link-45deg me-2 text-primary"></i>
+                          公安备案链接
+                        </label>
+                        <input 
+                          type="text" 
+                          class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          id="police-link"
+                          v-model="globalConfig.police.link"
+                          placeholder="输入公安备案链接"
+                        >
+                        <div class="form-text text-muted mt-2">公安备案查询链接</div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -281,161 +337,184 @@
               <form class="comment-config-form">
                 <!-- 速率限制 -->
                 <div class="form-section mb-6">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">速率限制</h3>
-                  <div class="form-check mb-4">
-                    <input 
-                      class="form-check-input rounded border-gray-300"
-                      type="checkbox" 
-                      id="rate_limit_enabled"
-                      v-model="commentConfig.rate_limit.enabled"
-                    >
-                    <label class="form-check-label" for="rate_limit_enabled">
-                      启用速率限制，防止频繁评论
-                    </label>
-                  </div>
-                  <div class="row g-4" v-if="commentConfig.rate_limit.enabled">
-                    <div class="col-md-4">
-                      <label for="rate_limit_max_count" class="form-label">最大评论数</label>
-                      <div class="input-group">
-                        <input 
-                          type="number" 
-                          class="form-control rounded-1 border-gray-300 shadow-sm"
-                          id="rate_limit_max_count"
-                          v-model.number="commentConfig.rate_limit.max_count"
-                          min="1"
-                          max="100"
-                        >
-                        <span class="input-group-text rounded-1 border-gray-300">条</span>
-                      </div>
-                      <div class="form-text text-muted mt-1">时间窗口内允许的最大评论数</div>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-speedometer me-2 text-primary"></i>
+                    速率限制
+                  </h3>
+                  <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm mb-4">
+                    <div class="form-check mb-4">
+                      <input 
+                        class="form-check-input rounded border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                        type="checkbox" 
+                        id="rate_limit_enabled"
+                        v-model="commentConfig.rate_limit.enabled"
+                      >
+                      <label class="form-check-label fw-medium text-gray-800" for="rate_limit_enabled">
+                        启用速率限制，防止频繁评论
+                      </label>
                     </div>
-                    <div class="col-md-4">
-                      <label for="rate_limit_time_window" class="form-label">时间窗口</label>
-                      <div class="input-group">
-                        <input 
-                          type="number" 
-                          class="form-control rounded-1 border-gray-300 shadow-sm"
-                          id="rate_limit_time_window"
-                          v-model.number="commentConfig.rate_limit.time_window"
-                          min="1"
-                          max="3600"
-                        >
-                        <span class="input-group-text rounded-1 border-gray-300">秒</span>
+                    <div class="row g-4" v-if="commentConfig.rate_limit.enabled">
+                      <div class="col-md-4">
+                        <label for="rate_limit_max_count" class="form-label fw-medium text-gray-800 mb-2">最大评论数</label>
+                        <div class="input-group rounded-lg overflow-hidden">
+                          <input 
+                            type="number" 
+                            class="form-control rounded-none border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                            id="rate_limit_max_count"
+                            v-model.number="commentConfig.rate_limit.max_count"
+                            min="1"
+                            max="100"
+                          >
+                          <span class="input-group-text rounded-none border-gray-300 bg-gray-50">条</span>
+                        </div>
+                        <div class="form-text text-muted mt-2">时间窗口内允许的最大评论数</div>
                       </div>
-                      <div class="form-text text-muted mt-1">速率限制的时间窗口</div>
+                      <div class="col-md-4">
+                        <label for="rate_limit_time_window" class="form-label fw-medium text-gray-800 mb-2">时间窗口</label>
+                        <div class="input-group rounded-lg overflow-hidden">
+                          <input 
+                            type="number" 
+                            class="form-control rounded-none border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                            id="rate_limit_time_window"
+                            v-model.number="commentConfig.rate_limit.time_window"
+                            min="1"
+                            max="3600"
+                          >
+                          <span class="input-group-text rounded-none border-gray-300 bg-gray-50">秒</span>
+                        </div>
+                        <div class="form-text text-muted mt-2">速率限制的时间窗口</div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <!-- 评论长度限制 -->
                 <div class="form-section mb-6">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">评论长度</h3>
-                  <div class="row g-4">
-                    <div class="col-md-4">
-                      <label for="max_length" class="form-label">最大长度</label>
-                      <div class="input-group">
-                        <input 
-                          type="number" 
-                          class="form-control rounded-1 border-gray-300 shadow-sm"
-                          id="max_length"
-                          v-model.number="commentConfig.max_length"
-                          min="1"
-                          max="10000"
-                        >
-                        <span class="input-group-text rounded-1 border-gray-300">字</span>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-text-left me-2 text-primary"></i>
+                    评论长度
+                  </h3>
+                  <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <div class="row g-4">
+                      <div class="col-md-4">
+                        <label for="max_length" class="form-label fw-medium text-gray-800 mb-2">最大长度</label>
+                        <div class="input-group rounded-lg overflow-hidden">
+                          <input 
+                            type="number" 
+                            class="form-control rounded-none border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                            id="max_length"
+                            v-model.number="commentConfig.max_length"
+                            min="1"
+                            max="10000"
+                          >
+                          <span class="input-group-text rounded-none border-gray-300 bg-gray-50">字</span>
+                        </div>
+                        <div class="form-text text-muted mt-2">单条评论的最大长度</div>
                       </div>
-                      <div class="form-text text-muted mt-1">单条评论的最大长度</div>
                     </div>
                   </div>
                 </div>
 
                 <!-- 内容要求 -->
                 <div class="form-section mb-6">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">内容要求</h3>
-                  <div class="form-check mb-3">
-                    <input 
-                      class="form-check-input rounded border-gray-300"
-                      type="checkbox" 
-                      id="require_chinese"
-                      v-model="commentConfig.require_chinese"
-                    >
-                    <label class="form-check-label" for="require_chinese">
-                      要求评论内容包含中文
-                    </label>
-                  </div>
-                  <div class="form-check mb-3">
-                    <input 
-                      class="form-check-input rounded border-gray-300"
-                      type="checkbox" 
-                      id="sensitive_filter"
-                      v-model="commentConfig.sensitive_filter"
-                    >
-                    <label class="form-check-label" for="sensitive_filter">
-                      启用敏感词过滤
-                    </label>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-check-circle me-2 text-primary"></i>
+                    内容要求
+                  </h3>
+                  <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <div class="form-check mb-3">
+                      <input 
+                        class="form-check-input rounded border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                        type="checkbox" 
+                        id="require_chinese"
+                        v-model="commentConfig.require_chinese"
+                      >
+                      <label class="form-check-label fw-medium text-gray-800" for="require_chinese">
+                        要求评论内容包含中文
+                      </label>
+                    </div>
+                    <div class="form-check mb-3">
+                      <input 
+                        class="form-check-input rounded border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                        type="checkbox" 
+                        id="sensitive_filter"
+                        v-model="commentConfig.sensitive_filter"
+                      >
+                      <label class="form-check-label fw-medium text-gray-800" for="sensitive_filter">
+                        启用敏感词过滤
+                      </label>
+                    </div>
                   </div>
                 </div>
 
                 <!-- 敏感词 -->
                 <div class="form-section mb-6" v-if="commentConfig.sensitive_filter">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">敏感词设置</h3>
-                  <div class="mb-3">
-                    <label for="sensitive_words" class="form-label">敏感词列表</label>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-shield-exclamation me-2 text-primary"></i>
+                    敏感词设置
+                  </h3>
+                  <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <label for="sensitive_words" class="form-label fw-medium text-gray-800 mb-2">敏感词列表</label>
                     <textarea 
-                      class="form-control rounded-1 border-gray-300 shadow-sm"
+                      class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
                       id="sensitive_words"
                       v-model="commentConfig.sensitive_words"
                       rows="4"
                       placeholder="在这里输入敏感词，多个敏感词用「,」分隔"
                     ></textarea>
-                    <div class="form-text text-muted mt-1">评论中包含这些词将被拒绝，多个敏感词用「,」分隔</div>
+                    <div class="form-text text-muted mt-2">评论中包含这些词将被拒绝，多个敏感词用「,」分隔</div>
                   </div>
                 </div>
 
                 <!-- 邮件通知 -->
                 <div class="form-section mb-6">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">邮件通知</h3>
-                  <div class="form-check mb-4">
-                    <input 
-                      class="form-check-input rounded border-gray-300"
-                      type="checkbox" 
-                      id="email_notify_enabled"
-                      v-model="commentConfig.email_notify.enabled"
-                    >
-                    <label class="form-check-label" for="email_notify_enabled">
-                      启用邮件通知
-                    </label>
-                  </div>
-                  <div class="row g-4" v-if="commentConfig.email_notify.enabled">
-                    <div class="col-md-4">
-                      <label for="email_notify_retry_count" class="form-label">重试次数</label>
-                      <div class="input-group">
-                        <input 
-                          type="number" 
-                          class="form-control rounded-1 border-gray-300 shadow-sm"
-                          id="email_notify_retry_count"
-                          v-model.number="commentConfig.email_notify.retry_count"
-                          min="1"
-                          max="10"
-                        >
-                        <span class="input-group-text rounded-1 border-gray-300">次</span>
-                      </div>
-                      <div class="form-text text-muted mt-1">发送失败时的重试次数</div>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-envelope me-2 text-primary"></i>
+                    邮件通知
+                  </h3>
+                  <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <div class="form-check mb-4">
+                      <input 
+                        class="form-check-input rounded border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                        type="checkbox" 
+                        id="email_notify_enabled"
+                        v-model="commentConfig.email_notify.enabled"
+                      >
+                      <label class="form-check-label fw-medium text-gray-800" for="email_notify_enabled">
+                        启用邮件通知
+                      </label>
                     </div>
-                    <div class="col-md-4">
-                      <label for="email_notify_retry_interval" class="form-label">重试间隔</label>
-                      <div class="input-group">
-                        <input 
-                          type="number" 
-                          class="form-control rounded-1 border-gray-300 shadow-sm"
-                          id="email_notify_retry_interval"
-                          v-model.number="commentConfig.email_notify.retry_interval"
-                          min="1"
-                          max="60"
-                        >
-                        <span class="input-group-text rounded-1 border-gray-300">秒</span>
+                    <div class="row g-4" v-if="commentConfig.email_notify.enabled">
+                      <div class="col-md-4">
+                        <label for="email_notify_retry_count" class="form-label fw-medium text-gray-800 mb-2">重试次数</label>
+                        <div class="input-group rounded-lg overflow-hidden">
+                          <input 
+                            type="number" 
+                            class="form-control rounded-none border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                            id="email_notify_retry_count"
+                            v-model.number="commentConfig.email_notify.retry_count"
+                            min="1"
+                            max="10"
+                          >
+                          <span class="input-group-text rounded-none border-gray-300 bg-gray-50">次</span>
+                        </div>
+                        <div class="form-text text-muted mt-2">发送失败时的重试次数</div>
                       </div>
-                      <div class="form-text text-muted mt-1">每次重试的时间间隔</div>
+                      <div class="col-md-4">
+                        <label for="email_notify_retry_interval" class="form-label fw-medium text-gray-800 mb-2">重试间隔</label>
+                        <div class="input-group rounded-lg overflow-hidden">
+                          <input 
+                            type="number" 
+                            class="form-control rounded-none border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                            id="email_notify_retry_interval"
+                            v-model.number="commentConfig.email_notify.retry_interval"
+                            min="1"
+                            max="60"
+                          >
+                          <span class="input-group-text rounded-none border-gray-300 bg-gray-50">秒</span>
+                        </div>
+                        <div class="form-text text-muted mt-2">每次重试的时间间隔</div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -481,24 +560,29 @@
               <form class="homepage-config-form">
                 <!-- 显示模式设置 -->
                 <div class="form-section mb-6">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">显示模式</h3>
-                  <div class="row g-4">
-                    <div class="col-md-6">
-                      <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                          <label class="form-label fw-medium">文章列表布局</label>
-                          <p class="form-text text-muted mt-1">选择首页文章卡片的显示模式</p>
-                        </div>
-                        <div class="form-check form-switch">
-                          <input 
-                            class="form-check-input" 
-                            type="checkbox" 
-                            id="display_mode_switch"
-                            v-model="homepageConfig.display_mode"
-                          >
-                          <label class="form-check-label" for="display_mode_switch">
-                            {{ homepageConfig.display_mode ? '有图模式' : '无图模式' }}
-                          </label>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-layout me-2 text-primary"></i>
+                    显示模式
+                  </h3>
+                  <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <div class="row g-4">
+                      <div class="col-md-6">
+                        <div class="d-flex align-items-center justify-content-between p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <label class="form-label fw-medium text-gray-800">文章列表布局</label>
+                            <p class="form-text text-muted mt-1">选择首页文章卡片的显示模式</p>
+                          </div>
+                          <div class="form-check form-switch">
+                            <input 
+                              class="form-check-input focus:border-primary focus:ring-2 focus:ring-primary/20"
+                              type="checkbox" 
+                              id="display_mode_switch"
+                              v-model="homepageConfig.display_mode"
+                            >
+                            <label class="form-check-label fw-medium text-gray-800" for="display_mode_switch">
+                              {{ homepageConfig.display_mode ? '有图模式' : '无图模式' }}
+                            </label>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -546,81 +630,96 @@
               <form class="custom-code-form">
                 <!-- 自定义CSS样式 -->
                 <div class="form-section mb-6">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">自定义CSS样式</h3>
-                  <div class="mb-3">
-                    <label for="custom-css" class="form-label">CSS代码</label>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-filetype-css me-2 text-primary"></i>
+                    自定义CSS样式
+                  </h3>
+                  <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <label for="custom-css" class="form-label fw-medium text-gray-800 mb-2">CSS代码</label>
                     <textarea 
-                      class="form-control rounded-1 border-gray-300 shadow-sm"
+                      class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
                       id="custom-css"
                       v-model="customCodeConfig.css"
                       rows="6"
                       placeholder="直接写样式代码，不用添加<style>标签"
                     ></textarea>
-                    <div class="form-text text-muted mt-1">位于&lt;/head&gt;之前，直接写样式代码，不用添加&lt;style&gt;标签</div>
+                    <div class="form-text text-muted mt-2">位于&lt;/head&gt;之前，直接写样式代码，不用添加&lt;style&gt;标签</div>
                   </div>
                 </div>
 
                 <!-- 自定义JavaScript代码 -->
                 <div class="form-section mb-6">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">自定义JavaScript代码</h3>
-                  <div class="mb-3">
-                    <label for="custom-js" class="form-label">JavaScript代码</label>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-filetype-js me-2 text-primary"></i>
+                    自定义JavaScript代码
+                  </h3>
+                  <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <label for="custom-js" class="form-label fw-medium text-gray-800 mb-2">JavaScript代码</label>
                     <textarea 
-                      class="form-control rounded-1 border-gray-300 shadow-sm"
+                      class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
                       id="custom-js"
                       v-model="customCodeConfig.js"
                       rows="6"
                       placeholder="直接填写JS代码，不需要添加<script>标签"
                     ></textarea>
-                    <div class="form-text text-muted mt-1">位于底部，直接填写JS代码，不需要添加&lt;script&gt;标签</div>
+                    <div class="form-text text-muted mt-2">位于底部，直接填写JS代码，不需要添加&lt;script&gt;标签</div>
                   </div>
                 </div>
 
                 <!-- 自定义头部HTML代码 -->
                 <div class="form-section mb-6">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">自定义头部HTML代码</h3>
-                  <div class="mb-3">
-                    <label for="custom-header" class="form-label">HTML代码</label>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-filetype-html me-2 text-primary"></i>
+                    自定义头部HTML代码
+                  </h3>
+                  <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <label for="custom-header" class="form-label fw-medium text-gray-800 mb-2">HTML代码</label>
                     <textarea 
-                      class="form-control rounded-1 border-gray-300 shadow-sm"
+                      class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
                       id="custom-header"
                       v-model="customCodeConfig.header"
                       rows="6"
                       placeholder="需填HTML标签"
                     ></textarea>
-                    <div class="form-text text-muted mt-1">位于&lt;/head&gt;之前，这部分代码是在主要内容显示之前加载，通常是CSS样式、自定义的<meta>标签、全站头部JS等需要提前加载的代码，需填HTML标签</div>
+                    <div class="form-text text-muted mt-2">位于&lt;/head&gt;之前，这部分代码是在主要内容显示之前加载，通常是CSS样式、自定义的<meta>标签、全站头部JS等需要提前加载的代码，需填HTML标签</div>
                   </div>
                 </div>
 
                 <!-- 自定义底部HTML代码 -->
                 <div class="form-section mb-6">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">自定义底部HTML代码</h3>
-                  <div class="mb-3">
-                    <label for="custom-footer" class="form-label">HTML代码</label>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-filetype-html me-2 text-primary"></i>
+                    自定义底部HTML代码
+                  </h3>
+                  <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <label for="custom-footer" class="form-label fw-medium text-gray-800 mb-2">HTML代码</label>
                     <textarea 
-                      class="form-control rounded-1 border-gray-300 shadow-sm"
+                      class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
                       id="custom-footer"
                       v-model="customCodeConfig.footer"
                       rows="6"
                       placeholder="需填HTML标签"
                     ></textarea>
-                    <div class="form-text text-muted mt-1">位于&lt;/body&gt;之前，这部分代码是在主要内容加载完毕加载，通常是JS代码，需填HTML标签</div>
+                    <div class="form-text text-muted mt-2">位于&lt;/body&gt;之前，这部分代码是在主要内容加载完毕加载，通常是JS代码，需填HTML标签</div>
                   </div>
                 </div>
 
                 <!-- 网站统计HTML代码 -->
                 <div class="form-section mb-6">
-                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">网站统计HTML代码</h3>
-                  <div class="mb-3">
-                    <label for="custom-analytics" class="form-label">HTML代码</label>
+                  <h3 class="form-section-title mb-4 fw-medium text-gray-700">
+                    <i class="bi bi-bar-chart me-2 text-primary"></i>
+                    网站统计HTML代码
+                  </h3>
+                  <div class="form-group-card p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <label for="custom-analytics" class="form-label fw-medium text-gray-800 mb-2">HTML代码</label>
                     <textarea 
-                      class="form-control rounded-1 border-gray-300 shadow-sm"
+                      class="form-control rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
                       id="custom-analytics"
                       v-model="customCodeConfig.analytics"
                       rows="6"
                       placeholder="需填HTML标签"
                     ></textarea>
-                    <div class="form-text text-muted mt-1">位于底部，用于添加第三方流量数据统计代码，如：Google analytics、百度统计、CNZZ、51la，国内站点推荐使用百度统计，国外站点推荐使用Google analytics。需填HTML标签，如果是javascript代码，请保存在自定义javascript代码</div>
+                    <div class="form-text text-muted mt-2">位于底部，用于添加第三方流量数据统计代码，如：Google analytics、百度统计、CNZZ、51la，国内站点推荐使用百度统计，国外站点推荐使用Google analytics。需填HTML标签，如果是javascript代码，请保存在自定义javascript代码</div>
                   </div>
                 </div>
 
@@ -1257,6 +1356,30 @@ onMounted(async () => {
 .input-group {
   border-radius: 0.5rem;
   overflow: hidden;
+}
+
+/* 表单组卡片样式 */
+.form-group-card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--bs-border-color);
+  transition: all 0.3s ease;
+}
+
+.form-group-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--bs-primary);
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .form-group-card {
+    background-color: var(--bs-dark-bg-subtle);
+    border-color: var(--bs-dark-border-color);
+  }
+  
+  .form-group-card:hover {
+    border-color: var(--bs-primary);
+  }
 }
 
 .input-group-text {

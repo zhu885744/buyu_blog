@@ -157,7 +157,6 @@ import cache from '@/utils/cache'
 // 导入本地图片
 import defaultCover from '@/assets/img/fm.avif'
 import loadingGif from '@/assets/img/ljz.gif'
-import { useCommStore } from '@/store/comm'
 import { usePageTitle } from '@/utils/usePageTitle'
 
 // 存储
@@ -734,6 +733,7 @@ img {
   margin: 0 0 1rem 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -751,6 +751,7 @@ img {
   margin: 0 0 1.25rem 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -778,6 +779,7 @@ img {
   margin: 0.75rem 0 1.25rem 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -940,6 +942,7 @@ img {
 
 .page-input[type=number] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .page-separator {

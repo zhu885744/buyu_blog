@@ -3,7 +3,9 @@
   <i-nav></i-nav>
   <!-- 主内容区 -->
   <div class="container">
-    <router-view></router-view>
+    <transition name="fade" mode="out-in">
+      <router-view></router-view>
+    </transition>
   </div>
   <!-- 全局页脚 -->
   <i-footer></i-footer>
@@ -133,6 +135,22 @@ onUnmounted(() => {
 </script>
 
 <style>
+/* 路由过渡动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
 /* 返回顶部按钮样式 */
 .back-to-top {
   position: fixed;
@@ -168,6 +186,15 @@ onUnmounted(() => {
     width: 40px !important;
     height: 40px !important;
     font-size: 1rem !important;
+  }
+  
+  /* 移动端优化过渡动画 */
+  .fade-enter-from {
+    transform: translateY(10px);
+  }
+  
+  .fade-leave-to {
+    transform: translateY(-10px);
   }
 }
 </style>

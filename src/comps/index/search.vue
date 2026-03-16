@@ -186,8 +186,6 @@ import { push } from '@/utils/route'
 import axios from '@/utils/request'
 import Toast from '@/utils/toast'
 
-
-
 // 状态管理
 const state = reactive({
   item: {

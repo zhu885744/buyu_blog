@@ -35,11 +35,14 @@ const renderMarkdown = (content) => {
   // 匹配并处理代码块
   processedContent = processedContent.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
     try {
-      const highlighted = hljs.highlight(code, { language: lang || 'plaintext' }).value
+      // 清理代码中的多余换行和空白
+      const cleanedCode = code.trim()
+      const highlighted = hljs.highlight(cleanedCode, { language: lang || 'plaintext' }).value
+      // 手动构建代码块HTML，避免marked.js添加多余的<br>标签
       return `<div class="code-block-container">
         <div class="code-block-header">
           <span class="code-language">${lang || 'plaintext'}</span>
-          <button class="copy-button" data-code="${code.replace(/"/g, '&quot;')}">
+          <button class="copy-button" data-code="${cleanedCode.replace(/"/g, '&quot;')}">
             <i class="bi bi-clipboard"></i>
             <span class="copy-text">复制</span>
           </button>
@@ -48,24 +51,35 @@ const renderMarkdown = (content) => {
       </div>`
     } catch (error) {
       console.error('代码高亮处理失败:', error)
+      const cleanedCode = code.trim()
       return `<div class="code-block-container">
         <div class="code-block-header">
           <span class="code-language">plaintext</span>
-          <button class="copy-button" data-code="${code.replace(/"/g, '&quot;')}">
+          <button class="copy-button" data-code="${cleanedCode.replace(/"/g, '&quot;')}">
             <i class="bi bi-clipboard"></i>
             <span class="copy-text">复制</span>
           </button>
         </div>
-        <pre class="hljs"><code>${code}</code></pre>
+        <pre class="hljs"><code>${cleanedCode}</code></pre>
       </div>`
     }
+  })
+  
+  // 移除代码块中的<br>标签
+  processedContent = processedContent.replace(/(<div class="code-block-container">[\s\S]*?<\/div>)/g, (match) => {
+    return match.replace(/<br>/g, '')
   })
   
   // 渲染Markdown
   let html = marked.parse(processedContent, {
     gfm: true,
-    breaks: true,
+    breaks: true, // 启用自动换行，保留文本中的换行符
     html: true
+  })
+  
+  // 移除代码块中的所有<br>标签
+  html = html.replace(/(<div class="code-block-container">[\s\S]*?<\/div>)/g, (match) => {
+    return match.replace(/<br>/g, '')
   })
   
   // 为所有图片添加 data-fancybox 属性
@@ -151,6 +165,20 @@ onMounted(() => {
   border-radius: 0.5rem;
   border: 1px solid var(--bs-border-color);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
+}
+
+/* 确保代码块内的代码正确换行 */
+.code-block-container pre code {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* 确保代码块内容区域不产生额外空白 */
+.code-block-container pre {
+  margin: 0;
 }
 
 /* 代码块头部样式 */
@@ -161,6 +189,8 @@ onMounted(() => {
   padding: 0.5rem 1rem;
   background-color: rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid var(--bs-border-color);
+  flex-shrink: 0;
+  margin: 0;
 }
 
 /* 代码语言标签 */
@@ -169,6 +199,7 @@ onMounted(() => {
   font-weight: 500;
   color: var(--bs-body-color);
   opacity: 0.8;
+  flex-shrink: 0;
 }
 
 /* 复制按钮样式 */
@@ -184,6 +215,8 @@ onMounted(() => {
   color: var(--bs-body-color);
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .copy-button:hover {
@@ -209,6 +242,15 @@ pre {
   overflow-x: auto;
   background-color: #282c34;
   border: none;
+  flex-grow: 1;
+  min-height: 4rem;
+}
+
+/* 代码样式 */
+pre code {
+  display: block;
+  width: 100%;
+  min-width: max-content;
 }
 
 /* 行内代码样式 */
@@ -220,9 +262,38 @@ code:not(pre code) {
   color: var(--bs-body-color);
 }
 
-/* 适配深色模式下行内代码 */
-.dark code:not(pre code) {
-  background-color: #334155;
-  color: #f8fafc;
+/* 适配深色模式 */
+[data-bs-theme=dark] {
+  /* 代码块容器 */
+  .code-block-container {
+    border-color: var(--bs-border-color);
+  }
+  
+  /* 代码块头部 */
+  .code-block-header {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: var(--bs-border-color);
+  }
+  
+  /* 代码语言标签 */
+  .code-language {
+    color: var(--bs-body-color);
+  }
+  
+  /* 复制按钮 */
+  .copy-button {
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+  }
+  
+  .copy-button:hover {
+    background-color: var(--bs-tertiary-bg);
+  }
+  
+  /* 行内代码 */
+  code:not(pre code) {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+  }
 }
 </style>

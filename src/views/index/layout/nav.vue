@@ -115,11 +115,6 @@
               </button>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdownMenu" :class="{ 'show': userDropdownOpen }">
                 <li>
-                  <button class="dropdown-item" type="button" @click="method.showPublishNotification()">
-                    <i class="bi bi-plus-circle me-1"></i>发布文章
-                  </button>
-                </li>
-                <li>
                   <router-link class="dropdown-item" :to="`/author/${store.comm.login.user.id}`">
                     <i class="bi bi-person me-1"></i>用户主页
                   </router-link>
@@ -290,9 +285,6 @@
             <router-link v-if="isAdmin" class="btn btn-outline-secondary text-center" to="/functions" @click="closeSidebar">
               <i class="bi bi-palette me-1"></i>主题设置
             </router-link>
-            <button class="btn btn-outline-success text-center" type="button" @click="method.showPublishNotification()">
-              <i class="bi bi-plus-circle me-1"></i>发布文章
-            </button>
             <button class="btn btn-outline-danger text-center" type="button" @click="method.logout()">
               <i class="bi bi-box-arrow-right me-1"></i>退出登录
             </button>
@@ -543,12 +535,6 @@ const method = {
       // 可选：登出后跳转到首页
       // router.push('/')
     }
-  },
-  
-  // 显示发布文章通知
-  showPublishNotification: () => {
-    Toast.info('该功能正在开发中，敬请期待！')
-    closeSidebar()
   },
   
   // 获取当前主题
